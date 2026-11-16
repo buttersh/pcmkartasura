@@ -121,8 +121,7 @@ def halaman_agenda(request):
     
     # --- LOGIKA AGENDA RUTIN (JALAN 2) ---
     # 1. Cari agenda rutin yang jam/tanggalnya sudah terlewat
-    agenda_rutin_lewat = Agenda.objects.filter(rutin=True, waktu_mulai__lt=waktu_sekarang)
-    
+    agenda_rutin_lewat = Agenda.objects.filter(waktu_mulai__lt=waktu_sekarang)    
     for agenda in agenda_rutin_lewat:
         # 2. Bikin jadwal baru persis sama, tapi waktunya ditambah 7 hari (minggu depan)
         Agenda.objects.create(
