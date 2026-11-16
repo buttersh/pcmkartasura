@@ -13,8 +13,8 @@
         {% endfor %}
     {% endif %}
 
-    <!-- Formulir Kontak (Namespace diperbaiki) -->
-    <form method="POST" action="{% url 'kontak' %}">
+    <!-- Formulir Kontak (Menggunakan namespace pcm_web:kontak) -->
+    <form method="POST" action="{% url 'pcm_web:kontak' %}">
         {% csrf_token %}
         <div style="margin-bottom: 15px;">
             <label for="nama" style="display: block; margin-bottom: 5px;">Nama Lengkap:</label>
