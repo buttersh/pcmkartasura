@@ -166,7 +166,7 @@ def halaman_kontak(request):
         
         # Memunculkan notifikasi sukses
         messages.success(request, 'Terima kasih, pesan Anda berhasil dikirim!')
-        return redirect('pcm_web:kontak')
+        return redirect('kontak')
 
     return render(request, 'pcm_web/kontak.html')
 
