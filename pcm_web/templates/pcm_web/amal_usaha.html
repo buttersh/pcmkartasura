@@ -126,7 +126,7 @@
                 </thead>
                 <tbody id="aum-tbody">
                     {% for aum in daftar_aum %}
-                    <tr class="aum-row" data-nama="{{ aum.nama|lower }}">
+                    <tr class="aum-row" data-nama="{{ aum.nama|lower }}" data-bidang="{{ aum.bidang }}">
                         <td class="fw-bold" style="color: var(--pcm-navy);">{{ aum.nama }}</td>
                         <td>
                             <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
@@ -137,76 +137,8 @@
                         <td>{{ aum.deskripsi }}</td>
                     </tr>
                     {% empty %}
-                    <!-- Data sementara jika database belum terisi -->
-                    <tr class="aum-row" data-nama="klinik pratama pku muhammadiyah kartasura" data-bidang="kesehatan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">Klinik Pratama PKU Muhammadiyah Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Kesehatan
-                            </span>
-                        </td>
-                        <td>Jl. Ahmad Yani, Kartasura, Sukoharjo</td>
-                        <td>Layanan kesehatan dasar dan balai pengobatan masyarakat (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="kl lazismu kartasura" data-bidang="sosial">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">KL LazisMu Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Sosial
-                            </span>
-                        </td>
-                        <td>Gedung Dakwah PCM Kartasura, Sukoharjo</td>
-                        <td>Kantor Layanan Zakat, Infaq, dan Shadaqah Muhammadiyah (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="panti asuhan yatim muhammadiyah kartasura" data-bidang="sosial">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">Panti Asuhan Yatim Muhammadiyah Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Sosial
-                            </span>
-                        </td>
-                        <td>Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Lembaga kesejahteraan sosial anak asuh dan yatim piatu (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="rumah sakit pku muhammadiyah kartasura" data-bidang="kesehatan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">Rumah Sakit PKU Muhammadiyah Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Kesehatan
-                            </span>
-                        </td>
-                        <td>Jl. Slamet Riyadi, Kartasura, Sukoharjo</td>
-                        <td>Rumah sakit layanan kesehatan dan rawat inap terpadu (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="sd muhammadiyah program khusus kartasura" data-bidang="pendidikan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">SD Muhammadiyah Program Khusus Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Pendidikan
-                            </span>
-                        </td>
-                        <td>Jl. Slamet Riyadi No. 80, Kartasura, Sukoharjo</td>
-                        <td>Sekolah Dasar unggulan di bawah Majelis Dikdasmen PCM Kartasura (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="smp muhammadiyah 1 kartasura" data-bidang="pendidikan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">SMP Muhammadiyah 1 Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Pendidikan
-                            </span>
-                        </td>
-                        <td>Kartasura, Kab. Sukoharjo</td>
-                        <td>Sekolah Menengah Pertama Muhammadiyah di wilayah PCM Kartasura (Data Sementara)</td>
-                    </tr>
-                    <tr class="aum-row" data-nama="surya mart muhammadiyah kartasura" data-bidang="ekonomi">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">Surya Mart Muhammadiyah Kartasura</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: var(--pcm-hijau);">
-                                Ekonomi
-                            </span>
-                        </td>
-                        <td>Kartasura, Kab. Sukoharjo</td>
-                        <td>Unit usaha toko ritel dan pemberdayaan ekonomi umat (Data Sementara)</td>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Belum ada data yang ditambahkan.</td>
                     </tr>
                     {% endfor %}
 
@@ -229,21 +161,20 @@
         const tbody = document.getElementById('aum-tbody');
         const sortHeader = document.getElementById('sort-nama-aum');
         const emptySearchRow = document.getElementById('aum-empty-search');
-        const activeBidang = "{{ bidang_filter|default:'' }}";
         let isAscending = true;
 
         function filterRows() {
-            const keyword = (searchInput.value || '').trim().toLowerCase();
             const rows = tbody.querySelectorAll('tr.aum-row');
+            if (rows.length === 0) {
+                return;
+            }
+
+            const keyword = (searchInput.value || '').trim().toLowerCase();
             let visibleCount = 0;
 
             rows.forEach(function (row) {
-                const rowBidang = row.getAttribute('data-bidang') || '';
-                const matchBidang = (!activeBidang || !rowBidang || rowBidang === activeBidang);
                 const textContent = row.textContent.toLowerCase();
-                const matchKeyword = (keyword === '' || textContent.includes(keyword));
-
-                if (matchBidang && matchKeyword) {
+                if (keyword === '' || textContent.includes(keyword)) {
                     row.classList.remove('d-none');
                     visibleCount++;
                 } else {
@@ -257,8 +188,6 @@
                 emptySearchRow.classList.add('d-none');
             }
         }
-
-        filterRows();
 
         function sortRows() {
             const rows = Array.from(tbody.querySelectorAll('tr.aum-row'));

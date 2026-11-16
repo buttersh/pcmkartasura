@@ -7,7 +7,8 @@ from django.db.models import Q
 from django.templatetags.static import static
 from django.utils import timezone
 from .models import (Berita, Agenda, PesanMasuk, ProfilOrganisasi,
-                     Pimpinan, AUM, PRM, BeritaInformasi, PanitiaKegiatan)
+                     Pimpinan, AUM, PRM, BeritaInformasi, PanitiaKegiatan,
+                     AmalUsaha, Ranting)
 
 
 PROFIL_PCM_DEFAULTS = {
@@ -173,23 +174,23 @@ def halaman_kontak(request):
 def halaman_amal_usaha(request):
     kategori = request.GET.get('kategori', '')
 
-    # Pemetaan parameter kategori URL ke (field bidang model AmalUsaha, label judul kategori)
+    # Pemetaan kode kategori URL ke label judul kategori (sesuai BIDANG_CHOICES)
     peta_kategori = {
-        'klinik': ('kesehatan', 'Klinik & Balai Pengobatan'),
-        'lazismu': ('sosial', 'LazisMu'),
-        'panti-asuhan': ('sosial', 'Panti Asuhan'),
-        'pondok-pesantren': ('pendidikan', 'Pondok Pesantren'),
-        'rumah-sakit': ('kesehatan', 'Rumah Sakit'),
-        'sekolah': ('pendidikan', 'Sekolah / Madrasah'),
-        'toko': ('ekonomi', 'Toko'),
+        'klinik': 'Klinik & Balai Pengobatan',
+        'lazismu': 'LazisMu',
+        'masjid': 'Masjid / Musholla',
+        'panti-asuhan': 'Panti Asuhan',
+        'pondok-pesantren': 'Pondok Pesantren',
+        'rumah-sakit': 'Rumah Sakit',
+        'sekolah': 'Sekolah / Madrasah',
+        'toko': 'Toko',
     }
 
     if kategori in peta_kategori:
-        bidang_filter, nama_kategori = peta_kategori[kategori]
-        daftar_aum = AmalUsaha.objects.filter(bidang=bidang_filter).order_by('nama')
+        nama_kategori = peta_kategori[kategori]
+        daftar_aum = AmalUsaha.objects.filter(bidang=kategori).order_by('nama')
         judul_kategori = f"Amal Usaha Muhammadiyah/'Aisyiyah - {nama_kategori}"
     else:
-        bidang_filter = ''
         nama_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
         daftar_aum = AmalUsaha.objects.all().order_by('nama')
         judul_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
@@ -197,7 +198,6 @@ def halaman_amal_usaha(request):
     context = {
         'daftar_aum': daftar_aum,
         'kategori': kategori,
-        'bidang_filter': bidang_filter,
         'nama_kategori': nama_kategori,
         'judul_kategori': judul_kategori,
     }
@@ -208,7 +208,6 @@ def halaman_ranting(request):
     daftar_ranting = Ranting.objects.all().order_by('nama_ranting')
     return render(request, 'pcm_web/ranting.html', {'daftar_ranting': daftar_ranting})
 
-    return render(request, 'pcm_web/kontak.html')
 
 # View untuk menampilkan halaman Beranda (Hero, Sambutan, dan cuplikan Pimpinan)
 def beranda(request):

@@ -162,18 +162,34 @@ class Ranting(models.Model):
 
 
 class AmalUsaha(models.Model):
-    BIDANG_CHOICES = [("pendidikan", "Pendidikan"), ("kesehatan", "Kesehatan"), ("sosial", "Sosial"), ("ekonomi", "Ekonomi")]
+    BIDANG_CHOICES = [
+        ("klinik", "Klinik & Balai Pengobatan"),
+        ("lazismu", "LazisMu"),
+        ("masjid", "Masjid / Musholla"),
+        ("panti-asuhan", "Panti Asuhan"),
+        ("pondok-pesantren", "Pondok Pesantren"),
+        ("rumah-sakit", "Rumah Sakit"),
+        ("sekolah", "Sekolah / Madrasah"),
+        ("toko", "Toko"),
+    ]
     nama = models.CharField(max_length=100)
     bidang = models.CharField(max_length=20, choices=BIDANG_CHOICES)
     deskripsi = models.TextField()
     alamat = models.TextField()
-    gambar = models.ImageField(upload_to="aum/", blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Amal Usaha (lama)"
 
     def __str__(self):
         return f"{self.nama} ({self.get_bidang_display()})"
+
+
+class BeritaQuerySet(models.QuerySet):
+    def terbit(self):
+        return self.filter(
+            status_terbit="terbit",
+            tanggal_terbit__lte=timezone.now(),
+        )
 
 
 class Berita(models.Model):
@@ -184,7 +200,9 @@ class Berita(models.Model):
     isi = models.TextField()
     gambar_sampul = models.ImageField(upload_to="berita/")
     tanggal_terbit = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draf")
+    status_terbit = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draf")
+
+    objects = BeritaQuerySet.as_manager()
 
     class Meta:
         verbose_name_plural = "Berita (lama)"
@@ -208,11 +226,8 @@ class Agenda(models.Model):
     nama_kegiatan = models.CharField(max_length=200)
     waktu_mulai = models.DateTimeField()
     tempat = models.CharField(max_length=200)
-    keterangan = models.TextField()
-
-    class Meta:
-        verbose_name_plural = "Agenda"
-        ordering = ["waktu_mulai"]
+    keterangan = models.TextField(blank=True, null=True)
+    rutin = models.BooleanField(default=False, help_text="Centang jika ini kegiatan rutin mingguan")
 
     def __str__(self):
         return self.nama_kegiatan

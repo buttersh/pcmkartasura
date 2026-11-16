@@ -133,78 +133,8 @@
                         <td>{{ ranting.telepon|default:"-" }}</td>
                     </tr>
                     {% empty %}
-                    <!-- Data sementara sambil menunggu data resmi dari PCM Kartasura -->
-                    <tr class="prm-row" data-nama="prm gonilan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Gonilan</td>
-                        <td>Desa Gonilan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm gumpang">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Gumpang</td>
-                        <td>Desa Gumpang, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm kartasura">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Kartasura</td>
-                        <td>Kelurahan Kartasura, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm kertonatan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Kertonatan</td>
-                        <td>Desa Kertonatan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm makamhaji">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Makamhaji</td>
-                        <td>Desa Makamhaji, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm ngabeyan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Ngabeyan</td>
-                        <td>Kelurahan Ngabeyan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm ngadirejo">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Ngadirejo</td>
-                        <td>Desa Ngadirejo, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm ngemplak">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Ngemplak</td>
-                        <td>Desa Ngemplak, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm pabelan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Pabelan</td>
-                        <td>Desa Pabelan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm pucangan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Pucangan</td>
-                        <td>Desa Pucangan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm singopuran">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Singopuran</td>
-                        <td>Desa Singopuran, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
-                    </tr>
-                    <tr class="prm-row" data-nama="prm wirogunan">
-                        <td class="fw-bold" style="color: var(--pcm-navy);">PRM Wirogunan</td>
-                        <td>Desa Wirogunan, Kec. Kartasura, Kab. Sukoharjo</td>
-                        <td>Data Sementara (Menunggu Data Resmi)</td>
-                        <td>-</td>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Belum ada data yang ditambahkan.</td>
                     </tr>
                     {% endfor %}
 
@@ -230,8 +160,12 @@
         let isAscending = true;
 
         function filterRows() {
-            const keyword = (searchInput.value || '').trim().toLowerCase();
             const rows = tbody.querySelectorAll('tr.prm-row');
+            if (rows.length === 0) {
+                return;
+            }
+
+            const keyword = (searchInput.value || '').trim().toLowerCase();
             let visibleCount = 0;
 
             rows.forEach(function (row) {
