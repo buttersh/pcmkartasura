@@ -1,15 +1,30 @@
-from django import urls
-from django.shortcuts import render, redirect
+from datetime import timedelta
+
 from django.contrib import messages
-from django.utils import timezone
-from datetime import timedelta  # Tambahan untuk menghitung jarak hari
+from django.core.paginator import Paginator
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
 from django.utils import timezone
-from .models import (Berita, Agenda, PesanMasuk, ProfilOrganisasi,
-                     Pimpinan, AUM, PRM, BeritaInformasi, PanitiaKegiatan,
-                     AmalUsaha, Ranting)
 
+from .forms import KontakForm
+from .models import (
+    AUM,
+    PRM,
+    Agenda,
+    AmalUsaha,
+    Berita,
+    BeritaInformasi,
+    Dokumen,
+    PanitiaKegiatan,
+    PesanMasuk,
+    Pimpinan,
+    ProfilCabang,
+    ProfilOrganisasi,
+    Ranting,
+    StrukturPengurus,
+    TautanTerkait,
+)
 
 PROFIL_PCM_DEFAULTS = {
     'nama': 'Pimpinan Cabang Muhammadiyah Kecamatan Kartasura Kabupaten Sukoharjo',
@@ -25,21 +40,21 @@ PROFIL_PCM_DEFAULTS = {
         'Mewujudkan amalan-amalan agama Islam dalam kehidupan pribadi, keluarga dan Masyarakat, melalui AUM baik Pendidikan, Sosial dan kemasyarakatan.',
     ]),
     'alamat_sekretariat': 'Jl. Slamet Riyadi No. 270B, Sidokerto, Dusun III, Gumpang, Kec. Kartasura, Kabupaten Sukoharjo, Jawa Tengah, Kotak Pos 57169',
-    'telepon': '008121547207',
-    'email': '',
+    'telepon': '08121547207',
+    'email': 'pcmkartasura@gmail.com',
     'jumlah_anggota_ktam': 364,
 }
 
 PIMPINAN_PCM_DEFAULTS = [
-    {'nama': 'Ihwan Susila, S.E., M.Si., Ph.D.', 'jabatan': 'Ketua'},
-    {'nama': 'Drs. Abdul Fatah Bintoro, M.Pd.', 'jabatan': 'Sekretaris'},
-    {'nama': 'Prof. Dr. Kuswaji Dwi Priyono, M.Si.', 'jabatan': 'Bendahara'},
-    {'nama': 'Dr. Abdullah Mahmud, M.Ag.', 'jabatan': 'Wakil Ketua — Tarjih, Tabligh dan Pembinaan Masjid'},
-    {'nama': 'H. Asrori, S.Pd.I.', 'jabatan': 'Wakil Ketua — Pendidikan'},
-    {'nama': 'Rahmad Basuki', 'jabatan': 'Wakil Ketua — Pembinaan Kader dan Sumber Daya Insani'},
-    {'nama': 'Prof. Dr. H. Bambang Sumardjoko, M.Pd.', 'jabatan': 'Wakil Ketua — PKU dan Kesejahteraan Sosial'},
-    {'nama': 'Dr. H. Abdul Aziz Nugroho Pratama, M.M.', 'jabatan': 'Wakil Ketua — Ekonomi dan Pemberdayaan Masyarakat'},
-    {'nama': 'Drs. Muhammad Widodo, M.Pd.', 'jabatan': 'Wakil Ketua — Hukum, Lingkungan Hidup, Pustaka dan Informasi'},
+    {'nama': 'Ihwan Susila, S.E., M.Si., Ph.D.', 'jabatan': 'Ketua', 'urutan': 1},
+    {'nama': 'Drs. Abdul Fatah Bintoro, M.Pd.', 'jabatan': 'Sekretaris', 'urutan': 2},
+    {'nama': 'Prof. Dr. Kuswaji Dwi Priyono, M.Si.', 'jabatan': 'Bendahara', 'urutan': 3},
+    {'nama': 'Dr. Abdullah Mahmud, M.Ag.', 'jabatan': 'Wakil Ketua — Tarjih, Tabligh dan Pembinaan Masjid', 'urutan': 4},
+    {'nama': 'H. Asrori, S.Pd.I.', 'jabatan': 'Wakil Ketua — Pendidikan', 'urutan': 5},
+    {'nama': 'Rahmad Basuki', 'jabatan': 'Wakil Ketua — Pembinaan Kader dan Sumber Daya Insani', 'urutan': 6},
+    {'nama': 'Prof. Dr. H. Bambang Sumardjoko, M.Pd.', 'jabatan': 'Wakil Ketua — PKU dan Kesejahteraan Sosial', 'urutan': 7},
+    {'nama': 'Dr. H. Abdul Aziz Nugroho Pratama, M.M.', 'jabatan': 'Wakil Ketua — Ekonomi dan Pemberdayaan Masyarakat', 'urutan': 8},
+    {'nama': 'Drs. Muhammad Widodo, M.Pd.', 'jabatan': 'Wakil Ketua — Hukum, Lingkungan Hidup, Pustaka dan Informasi', 'urutan': 9},
 ]
 
 PIMPINAN_PHOTO_DEFAULTS = [
@@ -51,130 +66,120 @@ PIMPINAN_PHOTO_DEFAULTS = [
 ]
 
 RANTING_PCM_DEFAULTS = [
-    {'nama_desa': 'Kartasura', 'ketua_ranting': 'Achmad Fatoni, M.Pd'},
-    {'nama_desa': 'Ngemplak', 'ketua_ranting': 'Suramto, S.Pd.'},
-    {'nama_desa': 'Pucangan', 'ketua_ranting': 'Drs. H. Maryanto, MM'},
-    {'nama_desa': 'Kertonatan', 'ketua_ranting': "Drs. Ali Sa'bani, M.Pd.I"},
-    {'nama_desa': 'Wirogunan', 'ketua_ranting': 'Dr. H. Dzanurusyamsi, M.H.'},
-    {'nama_desa': 'Ngabeyan', 'ketua_ranting': 'Muhammad Rochjani, S.Pd'},
-    {'nama_desa': 'Singopuran', 'ketua_ranting': 'H. Nur Hasan, M.T.'},
-    {'nama_desa': 'Pabelan', 'ketua_ranting': 'apt. Gunawan Setiyadi, M.Sc.'},
-    {'nama_desa': 'Gonilan', 'ketua_ranting': 'Drs. Supriyadi'},
-    {'nama_desa': 'Makamhaji', 'ketua_ranting': 'Drs. Edy Siyamto, M.Si.'},
-    {'nama_desa': 'Gumpang', 'ketua_ranting': 'Muhammad Anis Sumaji, S.Ag., M.PI'},
-    {'nama_desa': 'Ngadirejo', 'ketua_ranting': 'Agus Mustamar, SH.I.'},
+    {'nama_ranting': 'Kartasura', 'ketua': 'Achmad Fatoni, M.Pd', 'alamat': 'Kelurahan Kartasura, Kec. Kartasura'},
+    {'nama_ranting': 'Ngemplak', 'ketua': 'Suramto, S.Pd.', 'alamat': 'Desa Ngemplak, Kec. Kartasura'},
+    {'nama_ranting': 'Pucangan', 'ketua': 'Drs. H. Maryanto, MM', 'alamat': 'Kelurahan Pucangan, Kec. Kartasura'},
+    {'nama_ranting': 'Kertonatan', 'ketua': "Drs. Ali Sa'bani, M.Pd.I", 'alamat': 'Desa Kertonatan, Kec. Kartasura'},
+    {'nama_ranting': 'Wirogunan', 'ketua': 'Dr. H. Dzanurusyamsi, M.H.', 'alamat': 'Desa Wirogunan, Kec. Kartasura'},
+    {'nama_ranting': 'Ngabeyan', 'ketua': 'Muhammad Rochjani, S.Pd', 'alamat': 'Kelurahan Ngabeyan, Kec. Kartasura'},
+    {'nama_ranting': 'Singopuran', 'ketua': 'H. Nur Hasan, M.T.', 'alamat': 'Desa Singopuran, Kec. Kartasura'},
+    {'nama_ranting': 'Pabelan', 'ketua': 'apt. Gunawan Setiyadi, M.Sc.', 'alamat': 'Desa Pabelan, Kec. Kartasura'},
+    {'nama_ranting': 'Gonilan', 'ketua': 'Drs. Supriyadi', 'alamat': 'Desa Gonilan, Kec. Kartasura'},
+    {'nama_ranting': 'Makamhaji', 'ketua': 'Drs. Edy Siyamto, M.Si.', 'alamat': 'Kelurahan Makamhaji, Kec. Kartasura'},
+    {'nama_ranting': 'Gumpang', 'ketua': 'Muhammad Anis Sumaji, S.Ag., M.PI', 'alamat': 'Desa Gumpang, Kec. Kartasura'},
+    {'nama_ranting': 'Ngadirejo', 'ketua': 'Agus Mustamar, SH.I.', 'alamat': 'Desa Ngadirejo, Kec. Kartasura'},
 ]
 
 
 def _profil_pcm_untuk_tampilan():
-    """Return saved profile data, filling missing fields with supplied PCM details."""
     profil = ProfilOrganisasi.objects.first()
     if profil is None:
-        return ProfilOrganisasi(**PROFIL_PCM_DEFAULTS)
-
-    for field, value in PROFIL_PCM_DEFAULTS.items():
-        if field in {'misi', 'alamat_sekretariat', 'telepon', 'email'}:
-            # These details were explicitly confirmed for the public PCM profile.
-            setattr(profil, field, value)
-        elif field == 'jumlah_anggota_ktam':
-            if not getattr(profil, field):
-                setattr(profil, field, value)
-        elif not getattr(profil, field):
-            setattr(profil, field, value)
+        profil = ProfilOrganisasi(**PROFIL_PCM_DEFAULTS)
     return profil
 
 
-def _daftar_prm_untuk_tampilan():
-    """Merge SK-derived PRM display data with saved rows, without writing to DB."""
-    tersimpan = list(PRM.objects.all())
-    menurut_nama = {prm.nama_desa.strip().casefold(): prm for prm in tersimpan}
-    daftar = []
+def beranda(request):
+    profil = _profil_pcm_untuk_tampilan()
+    jumlah_ranting = Ranting.objects.count()
+    if not jumlah_ranting:
+        jumlah_ranting = len(RANTING_PCM_DEFAULTS)
 
-    for data_default in RANTING_PCM_DEFAULTS:
-        nama_kunci = data_default['nama_desa'].casefold()
-        prm = menurut_nama.pop(nama_kunci, None)
-        if prm is None:
-            prm = PRM(**data_default)
-        elif not prm.ketua_ranting:
-            prm.ketua_ranting = data_default['ketua_ranting']
-        daftar.append(prm)
+    jumlah_aum = AmalUsaha.objects.count()
+    if not jumlah_aum:
+        jumlah_aum = AUM.objects.count() or 70
 
-    daftar.extend(menurut_nama.values())
-    return daftar
+    berita_terbaru = Berita.objects.terbit()[:3]
+    if not berita_terbaru.exists():
+        berita_terbaru = BeritaInformasi.objects.order_by('-tanggal_publikasi')[:3]
 
-def cari_berita(request):
-    # Mengambil kata kunci dari URL (misal: ?q=pengajian)
-    query = request.GET.get('q')
-    hasil = None
-    
-    if query:
-        # Mencari berita yang judul ATAU isinya mengandung kata kunci, dan statusnya sudah 'terbit'
-        hasil = Berita.objects.terbit().filter(
-            Q(judul__icontains=query) | Q(isi__icontains=query),
-        )
-        
-    return render(request, 'pcm_web/cari.html', {'query': query, 'hasil': hasil})
+    agenda_mendatang = Agenda.objects.filter(
+        waktu_mulai__gte=timezone.now()
+    ).order_by('waktu_mulai')[:3]
 
+    gambar_hero = ""
+    if getattr(profil, 'gambar_utama', None):
+        try:
+            gambar_hero = profil.gambar_utama.url
+        except Exception:
+            gambar_hero = static('pcm_web/images/pimpinan-pcm-hero.jpeg')
+    else:
+        gambar_hero = static('pcm_web/images/pimpinan-pcm-hero.jpeg')
 
-def halaman_agenda(request):
-    waktu_sekarang = timezone.now()
-    
-    # --- LOGIKA AGENDA RUTIN (JALAN 2) ---
-    # 1. Cari agenda rutin yang jam/tanggalnya sudah terlewat
-    agenda_rutin_lewat = Agenda.objects.filter(rutin=True, waktu_mulai__lt=waktu_sekarang)
-    
-    for agenda in agenda_rutin_lewat:
-        # 2. Bikin jadwal baru persis sama, tapi waktunya ditambah 7 hari (minggu depan)
-        Agenda.objects.create(
-            nama_kegiatan=agenda.nama_kegiatan,
-            waktu_mulai=agenda.waktu_mulai + timedelta(days=7),
-            tempat=agenda.tempat,
-            keterangan=agenda.keterangan,
-            rutin=True # Jadwal minggu depan tetap dicentang rutin
-        )
-        # 3. Jadwal yang lama centang rutinnya dimatikan biar diam manis di tabel 'Selesai'
-        agenda.rutin = False
-        agenda.save()
-    # ------------------------------------
-    
-    # Memisahkan agenda yang belum terjadi (waktu_mulai >= sekarang)
-    agenda_mendatang = Agenda.objects.filter(waktu_mulai__gte=waktu_sekarang).order_by('waktu_mulai')[:5]
-    
-    # Memisahkan agenda yang sudah lewat (waktu_mulai < sekarang)
-    agenda_selesai = Agenda.objects.filter(waktu_mulai__lt=waktu_sekarang).order_by('-waktu_mulai')[:5]
-    
-    return render(request, 'pcm_web/agenda.html', {
+    context = {
+        'profil': profil,
+        'gambar_hero': gambar_hero,
+        'jumlah_ranting': jumlah_ranting,
+        'jumlah_aum': jumlah_aum,
+        'jumlah_anggota_ktam': getattr(profil, 'jumlah_anggota_ktam', 364),
+        'berita_terbaru': berita_terbaru,
         'agenda_mendatang': agenda_mendatang,
-        'agenda_selesai': agenda_selesai
+    }
+    return render(request, 'pcm_web/beranda.html', context)
+
+
+def profil_pcm(request):
+    profil = _profil_pcm_untuk_tampilan()
+    misi_list = [baris.strip() for baris in profil.misi.splitlines() if baris.strip()] if profil and profil.misi else []
+    context = {
+        'profil': profil,
+        'misi_list': misi_list,
+    }
+    return render(request, 'pcm_web/profil.html', context)
+
+
+def pimpinan_pcm(request):
+    daftar_pimpinan = list(Pimpinan.objects.order_by('urutan_tampil', 'nama'))
+    if not daftar_pimpinan:
+        daftar_pimpinan = [
+            Pimpinan(
+                nama=data['nama'],
+                jabatan=data['jabatan'],
+                periode='2022–2027',
+                urutan_tampil=data['urutan'],
+            )
+            for data in PIMPINAN_PCM_DEFAULTS
+        ]
+
+    for pimpinan in daftar_pimpinan:
+        if not pimpinan.foto:
+            nama_normal = pimpinan.nama.casefold()
+            for nama_kunci, path_foto in PIMPINAN_PHOTO_DEFAULTS:
+                if nama_kunci in nama_normal:
+                    pimpinan.foto_default_url = static(path_foto)
+                    break
+
+    return render(request, 'pcm_web/pimpinan.html', {
+        'daftar_pimpinan': daftar_pimpinan,
     })
 
 
-def halaman_kontak(request):
-    if request.method == 'POST':
-        # Mengambil data dari form HTML
-        nama_pengirim = request.POST.get('nama')
-        email_pengirim = request.POST.get('email')
-        subjek_pesan = request.POST.get('subjek') 
-        isi_pesan = request.POST.get('pesan')
-        
-        # Menyimpan data ke dalam database PesanMasuk
-        PesanMasuk.objects.create(
-            nama=nama_pengirim, 
-            email=email_pengirim, 
-            subjek=subjek_pesan, 
-            pesan=isi_pesan
-        )
-        
-        # Memunculkan notifikasi sukses
-        messages.success(request, 'Terima kasih, pesan Anda berhasil dikirim!')
-        return redirect('pcm_web:kontak')
+def halaman_ranting(request):
+    daftar_ranting = list(Ranting.objects.all().order_by('nama_ranting'))
+    if not daftar_ranting:
+        daftar_ranting = [
+            Ranting(
+                nama_ranting=d['nama_ranting'],
+                ketua=d['ketua'],
+                alamat=d['alamat'],
+            )
+            for d in RANTING_PCM_DEFAULTS
+        ]
+    return render(request, 'pcm_web/ranting.html', {'daftar_ranting': daftar_ranting})
 
-    return render(request, 'pcm_web/kontak.html')
 
 def halaman_amal_usaha(request):
-    kategori = request.GET.get('kategori', '')
+    kategori = request.GET.get('kategori', '').strip()
 
-    # Pemetaan kode kategori URL ke label judul kategori (sesuai BIDANG_CHOICES)
     peta_kategori = {
         'klinik': 'Klinik & Balai Pengobatan',
         'lazismu': 'LazisMu',
@@ -192,7 +197,7 @@ def halaman_amal_usaha(request):
         judul_kategori = f"Amal Usaha Muhammadiyah/'Aisyiyah - {nama_kategori}"
     else:
         nama_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
-        daftar_aum = AmalUsaha.objects.all().order_by('nama')
+        daftar_aum = AmalUsaha.objects.all().order_by('bidang', 'nama')
         judul_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
 
     context = {
@@ -203,28 +208,128 @@ def halaman_amal_usaha(request):
     }
     return render(request, 'pcm_web/amal_usaha.html', context)
 
-def halaman_ranting(request):
-    # Mengambil semua data ranting diurutkan berdasarkan nama_ranting
-    daftar_ranting = Ranting.objects.all().order_by('nama_ranting')
-    return render(request, 'pcm_web/ranting.html', {'daftar_ranting': daftar_ranting})
+
+def daftar_berita(request):
+    paginator = Paginator(Berita.objects.terbit(), 6)
+    berita_page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'pcm_web/berita_list.html', {'berita_page': berita_page})
 
 
-# View untuk menampilkan halaman Beranda (Hero, Sambutan, dan cuplikan Pimpinan)
-def beranda(request):
-    profil = _profil_pcm_untuk_tampilan()
-    daftar_prm = _daftar_prm_untuk_tampilan()
-    context = {
-        'profil': profil,
-        'jumlah_ranting': len(daftar_prm),
-        'jumlah_aum': AUM.objects.count() or 70,
-        'jumlah_anggota_ktam': profil.jumlah_anggota_ktam,
-        'berita_terbaru': BeritaInformasi.objects.order_by('-tanggal_publikasi')[:3],
-        'agenda_mendatang': Agenda.objects.filter(
-            waktu_mulai__gte=timezone.now()
-        ).order_by('waktu_mulai')[:3],
-    }
-    # Merender halaman beranda.html beserta data dari context
-    return render(request, 'pcm_web/beranda.html', context)
+def detail_berita(request, slug):
+    berita = get_object_or_404(Berita.objects.terbit(), slug=slug)
+    berita_lainnya = Berita.objects.terbit().exclude(pk=berita.pk)[:3]
+    isi_artikel = berita.isi
+    sumber_url = ""
+    source_marker = "Sumber asli: "
+    if source_marker in isi_artikel:
+        isi_artikel, sumber_url = isi_artikel.rsplit(source_marker, 1)
+        isi_artikel = isi_artikel.rstrip()
+        sumber_url = sumber_url.strip()
+
+    return render(
+        request,
+        'pcm_web/berita_detail.html',
+        {
+            'berita': berita,
+            'berita_lainnya': berita_lainnya,
+            'isi_artikel': isi_artikel,
+            'sumber_url': sumber_url,
+        },
+    )
+
+
+def daftar_unduhan(request):
+    dokumen_list = list(Dokumen.objects.order_by('judul'))
+    dokumen_cabang = [
+        dokumen for dokumen in dokumen_list
+        if dokumen.judul.startswith('SK PDM Sukoharjo')
+    ]
+    dokumen_ranting = [
+        dokumen for dokumen in dokumen_list
+        if dokumen.judul.startswith('SK PCM Kartasura Susunan PRM')
+    ]
+    dokumen_lainnya = [
+        dokumen for dokumen in dokumen_list
+        if dokumen not in dokumen_cabang and dokumen not in dokumen_ranting
+    ]
+    document_sections = [
+        {
+            'title': 'SK Tingkat Cabang — PDM Sukoharjo',
+            'badge': 'Cabang · 2022–2027',
+            'documents': dokumen_cabang,
+        },
+        {
+            'title': 'SK Pimpinan Ranting Muhammadiyah (PRM)',
+            'badge': 'PRM · 2022–2027',
+            'documents': dokumen_ranting,
+        },
+        {
+            'title': 'Dokumen Resmi Lainnya',
+            'badge': 'Dokumen resmi',
+            'documents': dokumen_lainnya,
+        },
+    ]
+    return render(
+        request,
+        'pcm_web/unduhan.html',
+        {
+            'dokumen_list': dokumen_list,
+            'document_sections': document_sections,
+        },
+    )
+
+
+def halaman_agenda(request):
+    waktu_sekarang = timezone.now()
+
+    # Logika Agenda Rutin Mingguan
+    agenda_rutin_lewat = Agenda.objects.filter(rutin=True, waktu_mulai__lt=waktu_sekarang)
+    for agenda in agenda_rutin_lewat:
+        Agenda.objects.create(
+            nama_kegiatan=agenda.nama_kegiatan,
+            waktu_mulai=agenda.waktu_mulai + timedelta(days=7),
+            tempat=agenda.tempat,
+            keterangan=agenda.keterangan,
+            rutin=True,
+        )
+        agenda.rutin = False
+        agenda.save(update_fields=['rutin'])
+
+    # Agenda Mendatang dan Agenda Selesai dipisah
+    agenda_mendatang = Agenda.objects.filter(waktu_mulai__gte=waktu_sekarang).order_by('waktu_mulai')
+    agenda_selesai = Agenda.objects.filter(waktu_mulai__lt=waktu_sekarang).order_by('-waktu_mulai')
+
+    return render(request, 'pcm_web/agenda.html', {
+        'agenda_mendatang': agenda_mendatang,
+        'agenda_selesai': agenda_selesai,
+    })
+
+
+def halaman_kontak(request):
+    if request.method == 'POST':
+        form = KontakForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Terima kasih, pesan Anda berhasil dikirim!')
+            return redirect('pcm_web:kontak')
+        else:
+            messages.error(request, 'Mohon periksa kembali isian formulir Anda.')
+    else:
+        form = KontakForm()
+
+    return render(request, 'pcm_web/kontak.html', {'form': form})
+
+
+def cari_berita(request):
+    query = request.GET.get('q', '').strip()
+    hasil = None
+
+    if query:
+        hasil = Berita.objects.terbit().filter(
+            Q(judul__icontains=query) | Q(isi__icontains=query) | Q(ringkasan__icontains=query)
+        )
+
+    return render(request, 'pcm_web/cari.html', {'query': query, 'hasil': hasil})
 
 
 def dashboard_panitia(request):
@@ -237,35 +342,4 @@ def dashboard_panitia(request):
         'total_tugas': total,
         'tugas_selesai': selesai,
         'persentase_kesiapan': persentase,
-    })
-
-# View untuk menampilkan satu profil PCM
-def profil_pcm(request):
-    profil = _profil_pcm_untuk_tampilan()
-    misi_list = [baris.strip() for baris in profil.misi.splitlines() if baris.strip()] if profil else []
-    context = {
-        'profil': profil,
-        'misi_list': misi_list,
-    }
-    # Merender halaman profil.html beserta data lengkapnya
-    return render(request, 'pcm_web/profil.html', context)
-
-
-def pimpinan_pcm(request):
-    daftar_pimpinan = list(Pimpinan.objects.order_by('urutan_tampil', 'nama'))
-    if not daftar_pimpinan:
-        daftar_pimpinan = [
-            Pimpinan(nama=data['nama'], jabatan=data['jabatan'],
-                     periode='Muktamar ke-48', urutan_tampil=urutan)
-            for urutan, data in enumerate(PIMPINAN_PCM_DEFAULTS, start=1)
-        ]
-    for pimpinan in daftar_pimpinan:
-        if not pimpinan.foto:
-            nama_normal = pimpinan.nama.casefold()
-            for nama_kunci, path_foto in PIMPINAN_PHOTO_DEFAULTS:
-                if nama_kunci in nama_normal:
-                    pimpinan.foto_default_url = static(path_foto)
-                    break
-    return render(request, 'pcm_web/pimpinan.html', {
-        'daftar_pimpinan': daftar_pimpinan,
     })

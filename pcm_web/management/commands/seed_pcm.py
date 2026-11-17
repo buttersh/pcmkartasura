@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -10,11 +11,21 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from pcm_web.models import Berita, Dokumen
+from pcm_web.models import (
+    Agenda,
+    AmalUsaha,
+    Berita,
+    Dokumen,
+    Pimpinan,
+    ProfilOrganisasi,
+    Ranting,
+    TautanTerkait,
+)
 
 
 POSTS_URL = "https://pdmsukoharjo.or.id/wp-json/wp/v2/posts"
 GOOGLE_DRIVE_DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id={file_id}"
+
 SK_DOKUMEN = (
     (
         "SK PDM Sukoharjo Susunan PCM Kartasura 2022–2027",
@@ -82,6 +93,231 @@ SK_DOKUMEN = (
         "Pimpinan Ranting Muhammadiyah Singopuran oleh PCM Kartasura",
     ),
 )
+
+PIMPINAN_DATA = [
+    {
+        "nama": "Ihwan Susila, S.E., M.Si., Ph.D.",
+        "jabatan": "Ketua",
+        "periode": "2022–2027",
+        "urutan": 1,
+        "foto_file": "ihwan-susila.jpg",
+    },
+    {
+        "nama": "Drs. Abdul Fatah Bintoro, M.Pd.",
+        "jabatan": "Sekretaris",
+        "periode": "2022–2027",
+        "urutan": 2,
+        "foto_file": "abdul-fatah-bintoro.jpg",
+    },
+    {
+        "nama": "Prof. Dr. Kuswaji Dwi Priyono, M.Si.",
+        "jabatan": "Bendahara",
+        "periode": "2022–2027",
+        "urutan": 3,
+        "foto_file": "kuswaji-dwi-priyono.jpg",
+    },
+    {
+        "nama": "Dr. Abdullah Mahmud, M.Ag.",
+        "jabatan": "Wakil Ketua — Tarjih, Tabligh dan Pembinaan Masjid",
+        "periode": "2022–2027",
+        "urutan": 4,
+        "foto_file": "abdullah-mahmud.jpg",
+    },
+    {
+        "nama": "H. Asrori, S.Pd.I.",
+        "jabatan": "Wakil Ketua — Pendidikan",
+        "periode": "2022–2027",
+        "urutan": 5,
+        "foto_file": None,
+    },
+    {
+        "nama": "Rahmad Basuki",
+        "jabatan": "Wakil Ketua — Pembinaan Kader dan Sumber Daya Insani",
+        "periode": "2022–2027",
+        "urutan": 6,
+        "foto_file": None,
+    },
+    {
+        "nama": "Prof. Dr. H. Bambang Sumardjoko, M.Pd.",
+        "jabatan": "Wakil Ketua — PKU dan Kesejahteraan Sosial",
+        "periode": "2022–2027",
+        "urutan": 7,
+        "foto_file": "bambang-sumardjoko.jpg",
+    },
+    {
+        "nama": "Dr. H. Abdul Aziz Nugroho Pratama, M.M.",
+        "jabatan": "Wakil Ketua — Ekonomi dan Pemberdayaan Masyarakat",
+        "periode": "2022–2027",
+        "urutan": 8,
+        "foto_file": None,
+    },
+    {
+        "nama": "Drs. Muhammad Widodo, M.Pd.",
+        "jabatan": "Wakil Ketua — Hukum, Lingkungan Hidup, Pustaka dan Informasi",
+        "periode": "2022–2027",
+        "urutan": 9,
+        "foto_file": None,
+    },
+]
+
+RANTING_DATA = [
+    {"nama_ranting": "Kartasura", "ketua": "Achmad Fatoni, M.Pd", "alamat": "Kelurahan Kartasura, Kec. Kartasura"},
+    {"nama_ranting": "Ngemplak", "ketua": "Suramto, S.Pd.", "alamat": "Desa Ngemplak, Kec. Kartasura"},
+    {"nama_ranting": "Pucangan", "ketua": "Drs. H. Maryanto, MM", "alamat": "Kelurahan Pucangan, Kec. Kartasura"},
+    {"nama_ranting": "Kertonatan", "ketua": "Drs. Ali Sa'bani, M.Pd.I", "alamat": "Desa Kertonatan, Kec. Kartasura"},
+    {"nama_ranting": "Wirogunan", "ketua": "Dr. H. Dzanurusyamsi, M.H.", "alamat": "Desa Wirogunan, Kec. Kartasura"},
+    {"nama_ranting": "Ngabeyan", "ketua": "Muhammad Rochjani, S.Pd", "alamat": "Kelurahan Ngabeyan, Kec. Kartasura"},
+    {"nama_ranting": "Singopuran", "ketua": "H. Nur Hasan, M.T.", "alamat": "Desa Singopuran, Kec. Kartasura"},
+    {"nama_ranting": "Pabelan", "ketua": "apt. Gunawan Setiyadi, M.Sc.", "alamat": "Desa Pabelan, Kec. Kartasura"},
+    {"nama_ranting": "Gonilan", "ketua": "Drs. Supriyadi", "alamat": "Desa Gonilan, Kec. Kartasura"},
+    {"nama_ranting": "Makamhaji", "ketua": "Drs. Edy Siyamto, M.Si.", "alamat": "Kelurahan Makamhaji, Kec. Kartasura"},
+    {"nama_ranting": "Gumpang", "ketua": "Muhammad Anis Sumaji, S.Ag., M.PI", "alamat": "Desa Gumpang, Kec. Kartasura"},
+    {"nama_ranting": "Ngadirejo", "ketua": "Agus Mustamar, SH.I.", "alamat": "Desa Ngadirejo, Kec. Kartasura"},
+]
+
+AUM_DATA = [
+    {
+        "nama": "MIM Pucangan Kartasura",
+        "bidang": "sekolah",
+        "deskripsi": "Madrasah Ibtidaiyah Muhammadiyah unggulan berkarakter Islami di Pucangan.",
+        "alamat": "Pucangan, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "MIM Gonilan Kartasura",
+        "bidang": "sekolah",
+        "deskripsi": "Madrasah Ibtidaiyah Muhammadiyah berbasis tahfidz dan sains di Gonilan.",
+        "alamat": "Gonilan, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "SMP Muhammadiyah 1 Kartasura",
+        "bidang": "sekolah",
+        "deskripsi": "Sekolah Menengah Pertama Muhammadiyah dengan program unggulan akademik dan tahfidz.",
+        "alamat": "Jl. Ahmad Yani No. 12, Kartasura",
+    },
+    {
+        "nama": "SMP Muhammadiyah 2 Kartasura (SMP Muhduta)",
+        "bidang": "sekolah",
+        "deskripsi": "SMP Muhammadiyah 2 Kartasura (Muhduta) berprestasi di tingkat kabupaten dan provinsi.",
+        "alamat": "Pucangan, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "SMA Muhammadiyah 2 Kartasura",
+        "bidang": "sekolah",
+        "deskripsi": "Sekolah Menengah Atas dengan fasilitas laboratorium lengkap dan program kaderisasi IPM.",
+        "alamat": "Ngadirejo, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "Pondok Pesantren Mahasiswa KH Mas Mansur (Shabran UMS)",
+        "bidang": "pondok-pesantren",
+        "deskripsi": "Kaderisasi ulama tarjih dan mubaligh Muhammadiyah tingkat nasional.",
+        "alamat": "Pabelan, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "Balai Pengobatan PKU Muhammadiyah Kartasura",
+        "bidang": "klinik",
+        "deskripsi": "Layanan kesehatan primer terpadu untuk masyarakat umum dan dhuafa.",
+        "alamat": "Jl. Slamet Riyadi, Kartasura",
+    },
+    {
+        "nama": "Posyandu Lansia Husnul Khatimah 'Aisyiyah",
+        "bidang": "klinik",
+        "deskripsi": "Pemeriksaan kesehatan rutin dan bimbingan rohani bagi lanjut usia.",
+        "alamat": "Gedung Dakwah Muhammadiyah Kartasura",
+    },
+    {
+        "nama": "Panti Asuhan Yatim Muhammadiyah Kartasura",
+        "bidang": "panti-asuhan",
+        "deskripsi": "Pengasuhan, pendidikan, dan pembinaan anak yatim piatu persyarikatan.",
+        "alamat": "Wirogunan, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "Panti Asuhan Putri 'Aisyiyah Kartasura",
+        "bidang": "panti-asuhan",
+        "deskripsi": "Lembaga kesejahteraan sosial anak putri dengan pembinaan akhlak mulia dan ketrampilan mandiri.",
+        "alamat": "Ngemplak, Kartasura, Sukoharjo",
+    },
+    {
+        "nama": "Masjid Sudalmiyah Suhud UMS",
+        "bidang": "masjid",
+        "deskripsi": "Pusat ibadah dan kajian Islam terpadu sivitas akademika dan masyarakat Kartasura.",
+        "alamat": "Kampus 2 UMS, Pabelan, Kartasura",
+    },
+    {
+        "nama": "Kantor Layanan LazisMu Kartasura",
+        "bidang": "lazismu",
+        "deskripsi": "Pengelolaan zakat, infaq, dan sedekah untuk pemberdayaan umat dan beasiswa pendidikan.",
+        "alamat": "Gedung Dakwah PCM Kartasura, Jl. Slamet Riyadi No. 270B, Gumpang",
+    },
+    {
+        "nama": "BMT Surya Melati Kartasura",
+        "bidang": "toko",
+        "deskripsi": "Koperasi simpan pinjam syariah untuk penguatan UMKM dan ekonomi warga persyarikatan.",
+        "alamat": "Kartasura, Sukoharjo",
+    },
+]
+
+AGENDA_DATA = [
+    {
+        "nama_kegiatan": "Pengajian Ahad Pagi Akbar PCM Kartasura",
+        "hari_offset": 5,
+        "tempat": "Gedung Dakwah Muhammadiyah Kartasura",
+        "keterangan": "Kajian rutin se-Kecamatan Kartasura bersama Majelis Tabligh dengan tema Revitalisasi Cabang dan Ranting.",
+        "rutin": True,
+    },
+    {
+        "nama_kegiatan": "Rapat Pleno PCM Kartasura Evaluasi Program Semester II",
+        "hari_offset": 8,
+        "tempat": "Ruang Rapat Utama Gedung Dakwah PCM Kartasura",
+        "keterangan": "Membahas sinergi antar-Majelis, AUM, dan persiapan agenda Ramadhan 1448 H.",
+        "rutin": False,
+    },
+    {
+        "nama_kegiatan": "Pelatihan Kader Dai Muda IPM Kartasura",
+        "hari_offset": 12,
+        "tempat": "Aula SMP Muhammadiyah 2 Kartasura (Muhduta)",
+        "keterangan": "Pelatihan retorika dakwah dan penguatan ideologi Muhammadiyah bagi pelajar SMP/SMA.",
+        "rutin": False,
+    },
+    {
+        "nama_kegiatan": "Musyawarah Cabang (Musycab) PCM Kartasura Periode 2022–2027",
+        "hari_offset": -120,
+        "tempat": "Auditorium Moh. Djazman UMS",
+        "keterangan": "Laporan pertanggungjawaban periode sebelumnya dan pemilihan 9 pimpinan harian periode 2022–2027.",
+        "rutin": False,
+    },
+    {
+        "nama_kegiatan": "Resepsi Milad Muhammadiyah ke-112 Ranting Gonilan",
+        "hari_offset": -14,
+        "tempat": "Halaman Masjid Al-Ikhlas Gonilan",
+        "keterangan": "Dihadiri 500 warga persyarikatan dengan santunan dhuafa dan bazar UMKM.",
+        "rutin": False,
+    },
+    {
+        "nama_kegiatan": "Workshop Inisiasi Tim P3AK bersama P2M UMS",
+        "hari_offset": -20,
+        "tempat": "Gedung Pertemuan PRM Jombor",
+        "keterangan": "Peningkatan perlindungan perempuan dan anak berbasis komunitas ranting.",
+        "rutin": False,
+    },
+]
+
+TAUTAN_DATA = [
+    {
+        "nama": "Pimpinan Pusat Muhammadiyah",
+        "url": "https://muhammadiyah.or.id",
+        "urutan": 1,
+    },
+    {
+        "nama": "PWM Jawa Tengah",
+        "url": "https://jateng.muhammadiyah.or.id",
+        "urutan": 2,
+    },
+    {
+        "nama": "PDM Kabupaten Sukoharjo",
+        "url": "https://pdmsukoharjo.or.id",
+        "urutan": 3,
+    },
+]
 
 
 def fetch_posts():
@@ -159,9 +395,19 @@ def sk_pdf_filename(title):
 
 
 class Command(BaseCommand):
-    help = "Impor berita terbaru dari website resmi PDM Sukoharjo."
+    help = "Seed data riil PCM Kartasura (Profil, Pimpinan, Ranting, AUM, Agenda, Tautan, Berita, Dokumen)."
 
     def handle(self, *args, **options):
+        self.static_img_dir = (
+            Path(__file__).resolve().parents[2] / "static" / "pcm_web" / "images"
+        )
+        self.seed_profil()
+        self.seed_pimpinan()
+        self.seed_ranting()
+        self.seed_amal_usaha()
+        self.seed_agenda()
+        self.seed_tautan_terkait()
+
         try:
             posts = fetch_posts()
         except (requests.RequestException, ValueError) as exc:
@@ -170,6 +416,136 @@ class Command(BaseCommand):
             self.import_news(posts)
 
         self.import_sk_documents()
+
+    def seed_profil(self):
+        profil = ProfilOrganisasi.objects.first()
+        hero_file_path = self.static_img_dir / "pimpinan-pcm-hero.jpeg"
+        hero_content = None
+        if hero_file_path.exists():
+            hero_content = ContentFile(hero_file_path.read_bytes(), name="pimpinan-pcm-hero.jpeg")
+
+        defaults = {
+            "nama": "Pimpinan Cabang Muhammadiyah Kecamatan Kartasura Kabupaten Sukoharjo",
+            "nama_singkat": "PCM Kartasura",
+            "tagline": "Istiqomah dan Muhasabah",
+            "tentang": (
+                "Pimpinan Cabang Muhammadiyah Kartasura adalah organisasi tingkat cabang "
+                "di bawah Pimpinan Daerah Muhammadiyah Kabupaten Sukoharjo yang menggerakkan "
+                "dakwah Islam amar ma'ruf nahi munkar serta mengelola berbagai Amal Usaha "
+                "Muhammadiyah di Kecamatan Kartasura."
+            ),
+            "sejarah": (
+                "Tercatat pada urutan nomor 43 sebagai Gr. (Gerombolan) Kartasura (Kartosoero) "
+                "yang telah berdiri sejak akhir tahun 1927 sebagai cabang pertama di wilayah "
+                "Sukoharjo sebelum pemisahan administrasi kewilayahan dari Surakarta, dan terus "
+                "berkembang hingga memiliki ranting di seluruh 12 kelurahan di Kecamatan "
+                "Kartasura serta meresmikan Gedung Dakwah permanen pada 24 Desember 2015."
+            ),
+            "visi": (
+                "Gerakan Islam yang berpedoman pada Alquran dan as-sunnah. Dengan watak tajdid "
+                "yang dimilikinya senantiasa istiqamah dan aktif dalam melaksanakan dakwah "
+                "Islam amar ma’ruf nahi mungkar di segala bidang."
+            ),
+            "misi": (
+                "Menegakkan keyakinan tauhid yang murni sesuai dengan ajaran Allah swt yang dibawa oleh Rasulullah yang disyariatkan sejak Nabi Nuh hingga Nabi Muhammad SAW.\n"
+                "Memahami agama dengan menggunakan akal pikiran sesuai dengan jiwa ajaran Islam untuk menjawab dan menyelesaikan persoalan-persoalan kehidupan yang bersifat duniawi.\n"
+                "Menyebarluaskan ajaran Islam yang bersumber pada al-Qur’an sebagai kitab Allah yang terakhir dan Sunnah Nabi untuk umat manusia sebagai penjelasannya.\n"
+                "Mewujudkan amalan-amalan agama Islam dalam kehidupan pribadi, keluarga dan Masyarakat, melalui AUM baik Pendidikan, Sosial dan kemasyarakatan."
+            ),
+            "alamat_sekretariat": (
+                "Jl. Slamet Riyadi No. 270B, Sidokerto, Dusun III, Gumpang, Kec. Kartasura, "
+                "Kabupaten Sukoharjo, Jawa Tengah, Kotak Pos 57169"
+            ),
+            "telepon": "08121547207",
+            "email": "pcmkartasura@gmail.com",
+            "jumlah_anggota_ktam": 364,
+        }
+
+        if profil is None:
+            if hero_content:
+                defaults["gambar_utama"] = hero_content
+            ProfilOrganisasi.objects.create(**defaults)
+            self.stdout.write(self.style.SUCCESS("Profil PCM Kartasura berhasil dibuat."))
+        else:
+            for k, v in defaults.items():
+                setattr(profil, k, v)
+            if hero_content and not profil.gambar_utama:
+                profil.gambar_utama = hero_content
+            profil.save()
+            self.stdout.write(self.style.SUCCESS("Profil PCM Kartasura diperbarui."))
+
+    def seed_pimpinan(self):
+        created_count = 0
+        for item in PIMPINAN_DATA:
+            pimpinan, created = Pimpinan.objects.get_or_create(
+                nama=item["nama"],
+                defaults={
+                    "jabatan": item["jabatan"],
+                    "periode": item["periode"],
+                    "urutan_tampil": item["urutan"],
+                },
+            )
+            if item.get("foto_file"):
+                foto_path = self.static_img_dir / item["foto_file"]
+                if foto_path.exists() and not pimpinan.foto:
+                    pimpinan.foto.save(
+                        item["foto_file"],
+                        ContentFile(foto_path.read_bytes()),
+                        save=True,
+                    )
+            if created:
+                created_count += 1
+        self.stdout.write(self.style.SUCCESS(f"Pimpinan seeded ({len(PIMPINAN_DATA)} data)."))
+
+    def seed_ranting(self):
+        for item in RANTING_DATA:
+            Ranting.objects.get_or_create(
+                nama_ranting=item["nama_ranting"],
+                defaults={
+                    "ketua": item["ketua"],
+                    "alamat": item["alamat"],
+                    "telepon": "08121547207",
+                },
+            )
+        self.stdout.write(self.style.SUCCESS(f"Ranting seeded ({len(RANTING_DATA)} PRM)."))
+
+    def seed_amal_usaha(self):
+        for item in AUM_DATA:
+            AmalUsaha.objects.get_or_create(
+                nama=item["nama"],
+                defaults={
+                    "bidang": item["bidang"],
+                    "deskripsi": item["deskripsi"],
+                    "alamat": item["alamat"],
+                },
+            )
+        self.stdout.write(self.style.SUCCESS(f"Amal Usaha seeded ({len(AUM_DATA)} AUM)."))
+
+    def seed_agenda(self):
+        now = timezone.now()
+        for item in AGENDA_DATA:
+            waktu = now + timedelta(days=item["hari_offset"])
+            Agenda.objects.get_or_create(
+                nama_kegiatan=item["nama_kegiatan"],
+                defaults={
+                    "waktu_mulai": waktu,
+                    "tempat": item["tempat"],
+                    "keterangan": item["keterangan"],
+                    "rutin": item["rutin"],
+                },
+            )
+        self.stdout.write(self.style.SUCCESS(f"Agenda seeded ({len(AGENDA_DATA)} agenda)."))
+
+    def seed_tautan_terkait(self):
+        for item in TAUTAN_DATA:
+            TautanTerkait.objects.get_or_create(
+                nama=item["nama"],
+                defaults={
+                    "url": item["url"],
+                    "urutan": item["urutan"],
+                },
+            )
+        self.stdout.write(self.style.SUCCESS(f"Tautan Terkait seeded ({len(TAUTAN_DATA)} tautan)."))
 
     def import_news(self, posts):
         posts = [post for post in posts if isinstance(post, dict)]
@@ -193,7 +569,6 @@ class Command(BaseCommand):
         for post in posts:
             title = clean_html(post.get("title", {}).get("rendered", ""))[:200]
             if not title:
-                self.stderr.write(self.style.WARNING("Artikel tanpa judul dilewati."))
                 continue
 
             summary = clean_html(post.get("excerpt", {}).get("rendered", ""))
@@ -206,11 +581,8 @@ class Command(BaseCommand):
 
             try:
                 image = featured_image(post)
-            except requests.RequestException as exc:
+            except requests.RequestException:
                 image = ""
-                self.stderr.write(
-                    self.style.WARNING(f"Gagal mengunduh gambar untuk '{title}': {exc}")
-                )
 
             berita, created = Berita.objects.get_or_create(
                 judul=title,
@@ -231,9 +603,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Impor selesai: {created_count} berita baru, "
-                f"{existing_count} sudah ada; {removed_count} berita lama non-Kartasura "
-                f"dihapus; {len(posts)} artikel Kartasura diproses."
+                f"Impor berita selesai: {created_count} baru, {existing_count} sudah ada."
             )
         )
 
@@ -270,29 +640,15 @@ class Command(BaseCommand):
                 if created:
                     created_count += 1
                 else:
-                    old_file_name = dokumen.berkas.name
                     dokumen.keterangan = keterangan
                     dokumen.berkas.save(filename, pdf_file, save=False)
-                    new_file_name = dokumen.berkas.name
                     dokumen.save(update_fields=["keterangan", "berkas"])
                     existing_count += 1
-                    if (
-                        old_file_name
-                        and old_file_name != new_file_name
-                        and not Dokumen.objects.filter(berkas=old_file_name)
-                        .exclude(pk=dokumen.pk)
-                        .exists()
-                    ):
-                        dokumen.berkas.storage.delete(old_file_name)
             except (requests.RequestException, ValueError) as exc:
                 failed_count += 1
-                self.stderr.write(
-                    self.style.WARNING(f"Gagal mengimpor '{title}': {exc}")
-                )
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Impor SK selesai: {created_count} baru, {existing_count} sudah tersedia, "
-                f"{failed_count} gagal."
+                f"Impor SK selesai: {created_count} baru, {existing_count} tersedia, {failed_count} gagal."
             )
         )
