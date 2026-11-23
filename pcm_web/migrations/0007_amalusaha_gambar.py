@@ -6,8 +6,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pcm_web', '0001_initial'),
-    ]
+    ('pcm_web', '0001_initial'),
+]
 
     operations = [
         migrations.AddField(
