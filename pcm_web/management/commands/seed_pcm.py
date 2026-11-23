@@ -291,47 +291,63 @@ AUM_DATA = [
 ]
 
 AGENDA_DATA = [
+    # --- 2 Agenda Mendatang (Muncul di Beranda & Tabel Atas Agenda) ---
     {
-        "nama_kegiatan": "Pengajian Ahad Pagi Akbar PCM Kartasura",
-        "hari_offset": 5,
-        "tempat": "Gedung Dakwah Muhammadiyah Kartasura",
-        "keterangan": "Kajian rutin se-Kecamatan Kartasura bersama Majelis Tabligh dengan tema Revitalisasi Cabang dan Ranting.",
+        "nama_kegiatan": "Rapat rutin PCM",
+        "hari_offset": 1,
+        "tempat": "Sekretariat PCM Kartasura",
+        "keterangan": "Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.",
         "rutin": True,
     },
     {
-        "nama_kegiatan": "Rapat Pleno PCM Kartasura Evaluasi Program Semester II",
-        "hari_offset": 8,
-        "tempat": "Ruang Rapat Utama Gedung Dakwah PCM Kartasura",
-        "keterangan": "Membahas sinergi antar-Majelis, AUM, dan persiapan agenda Ramadhan 1448 H.",
+        "nama_kegiatan": "Rapat rutin dikdasmen seminggu sekali pada hari senin",
+        "hari_offset": 1,
+        "tempat": "PCM Kartasura",
+        "keterangan": "Rapat rutin mingguan Dikdasmen",
+        "rutin": True,
+    },
+    # --- 6 Riwayat Agenda Selesai (Muncul di Tabel Bawah Agenda) ---
+    {
+        "nama_kegiatan": "Pengajian PCM Kartasura Ahad Kliwon",
+        "hari_offset": -1,
+        "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
+        "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
+        "rutin": True,
+    },
+    {
+        "nama_kegiatan": "Rapat rutin PCM",
+        "hari_offset": -7,
+        "tempat": "Sekretariat PCM Kartasura",
+        "keterangan": "Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.",
+        "rutin": True,
+    },
+    {
+        "nama_kegiatan": "Silaturrahmi BikersMu PCM Kartasura ke PCM Eromoko Wonogiri",
+        "hari_offset": -15,
+        "tempat": "PCM Eromoko, Wonogiri",
+        "keterangan": "Kegiatan silaturrahmi dan kunjungan kerja komunitas BikersMu PCM Kartasura.",
         "rutin": False,
     },
     {
-        "nama_kegiatan": "Pelatihan Kader Dai Muda IPM Kartasura",
-        "hari_offset": 12,
-        "tempat": "Aula SMP Muhammadiyah 2 Kartasura (Muhduta)",
-        "keterangan": "Pelatihan retorika dakwah dan penguatan ideologi Muhammadiyah bagi pelajar SMP/SMA.",
+        "nama_kegiatan": "Kunjungan Tim 9 PCM Kartasura ke Rumah Pak Dalmadi",
+        "hari_offset": -26,
+        "tempat": "Kediaman Bapak Dalmadi",
+        "keterangan": "Kunjungan silaturrahmi dan menjenguk Bapak Dalmadi setelah opname di RS PKU Muhammadiyah Delanggu.",
         "rutin": False,
     },
     {
-        "nama_kegiatan": "Musyawarah Cabang (Musycab) PCM Kartasura Periode 2022–2027",
-        "hari_offset": -120,
-        "tempat": "Auditorium Moh. Djazman UMS",
-        "keterangan": "Laporan pertanggungjawaban periode sebelumnya dan pemilihan 9 pimpinan harian periode 2022–2027.",
-        "rutin": False,
+        "nama_kegiatan": "Pengajian PCM Kartasura Ahad Kliwon",
+        "hari_offset": -29,
+        "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
+        "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
+        "rutin": True,
     },
     {
-        "nama_kegiatan": "Resepsi Milad Muhammadiyah ke-112 Ranting Gonilan",
-        "hari_offset": -14,
-        "tempat": "Halaman Masjid Al-Ikhlas Gonilan",
-        "keterangan": "Dihadiri 500 warga persyarikatan dengan santunan dhuafa dan bazar UMKM.",
-        "rutin": False,
-    },
-    {
-        "nama_kegiatan": "Workshop Inisiasi Tim P3AK bersama P2M UMS",
-        "hari_offset": -20,
-        "tempat": "Gedung Pertemuan PRM Jombor",
-        "keterangan": "Peningkatan perlindungan perempuan dan anak berbasis komunitas ranting.",
-        "rutin": False,
+        "nama_kegiatan": "Pengajian PCM Kartasura Ahad Kliwon",
+        "hari_offset": -204,
+        "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
+        "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
+        "rutin": True,
     },
 ]
 
@@ -633,17 +649,17 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Amal Usaha seeded ({len(AUM_DATA)} AUM)."))
 
     def seed_agenda(self):
-        now = timezone.now()
+        Agenda.objects.all().delete()
+        now = timezone.now().replace(hour=19, minute=0, second=0, microsecond=0)
         for item in AGENDA_DATA:
             waktu = now + timedelta(days=item["hari_offset"])
-            if not Agenda.objects.filter(nama_kegiatan=item["nama_kegiatan"]).exists():
-                Agenda.objects.create(
-                    nama_kegiatan=item["nama_kegiatan"],
-                    waktu_mulai=waktu,
-                    tempat=item["tempat"],
-                    keterangan=item["keterangan"],
-                    rutin=item["rutin"],
-                )
+            Agenda.objects.create(
+                nama_kegiatan=item["nama_kegiatan"],
+                waktu_mulai=waktu,
+                tempat=item["tempat"],
+                keterangan=item["keterangan"],
+                rutin=item["rutin"],
+            )
         self.stdout.write(self.style.SUCCESS(f"Agenda seeded ({len(AGENDA_DATA)} agenda)."))
 
     def seed_tautan_terkait(self):
