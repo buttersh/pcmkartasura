@@ -291,35 +291,35 @@ AUM_DATA = [
 ]
 
 AGENDA_DATA = [
-    # --- 2 Agenda Mendatang (Muncul di Beranda & Tabel Atas Agenda) ---
+    # --- 2 Agenda Mendatang ---
     {
         "nama_kegiatan": "Rapat rutin PCM",
         "hari_offset": 1,
         "tempat": "Sekretariat PCM Kartasura",
         "keterangan": "Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.",
-        "rutin": True,
+        "rutin": False,
     },
     {
         "nama_kegiatan": "Rapat rutin dikdasmen seminggu sekali pada hari senin",
         "hari_offset": 1,
         "tempat": "PCM Kartasura",
         "keterangan": "Rapat rutin mingguan Dikdasmen",
-        "rutin": True,
+        "rutin": False,
     },
-    # --- 6 Riwayat Agenda Selesai (Muncul di Tabel Bawah Agenda) ---
+    # --- 6 Riwayat Agenda Selesai ---
     {
         "nama_kegiatan": "Pengajian PCM Kartasura Ahad Kliwon",
         "hari_offset": -1,
         "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
         "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
-        "rutin": True,
+        "rutin": False,
     },
     {
         "nama_kegiatan": "Rapat rutin PCM",
         "hari_offset": -7,
         "tempat": "Sekretariat PCM Kartasura",
         "keterangan": "Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.",
-        "rutin": True,
+        "rutin": False,
     },
     {
         "nama_kegiatan": "Silaturrahmi BikersMu PCM Kartasura ke PCM Eromoko Wonogiri",
@@ -340,14 +340,14 @@ AGENDA_DATA = [
         "hari_offset": -29,
         "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
         "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
-        "rutin": True,
+        "rutin": False,
     },
     {
         "nama_kegiatan": "Pengajian PCM Kartasura Ahad Kliwon",
         "hari_offset": -204,
         "tempat": "Komplek Perguruan Muhammadiyah Standart, Kartasura",
         "keterangan": "Pengajian bulanan Ahad Kliwon PCM Kartasura.",
-        "rutin": True,
+        "rutin": False,
     },
 ]
 
