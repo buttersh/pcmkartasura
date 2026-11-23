@@ -49,6 +49,7 @@ class RantingAdmin(admin.ModelAdmin):
 @admin.register(AmalUsaha)
 class AmalUsahaAdmin(admin.ModelAdmin):
     list_display = ('nama', 'bidang', 'alamat', 'deskripsi')
+    fields = ('nama', 'bidang', 'alamat', 'deskripsi', 'gambar')
     list_filter = ('bidang',)
     search_fields = ('nama', 'alamat', 'deskripsi')
 

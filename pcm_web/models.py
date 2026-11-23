@@ -176,6 +176,12 @@ class AmalUsaha(models.Model):
     bidang = models.CharField(max_length=20, choices=BIDANG_CHOICES)
     deskripsi = models.TextField()
     alamat = models.TextField()
+    gambar = models.ImageField(
+        upload_to='amal_usaha/',
+        blank=True,
+        null=True,
+        verbose_name='Foto Amal Usaha'
+    )
 
     class Meta:
         verbose_name_plural = "Amal Usaha (lama)"
