@@ -174,8 +174,20 @@ class AmalUsaha(models.Model):
     ]
     nama = models.CharField(max_length=100)
     bidang = models.CharField(max_length=20, choices=BIDANG_CHOICES)
+    kepala = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name='Kepala Sekolah / Pimpinan'
+    )
     deskripsi = models.TextField()
     alamat = models.TextField()
+    link_maps = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='Link Google Maps'
+    )
     gambar = models.ImageField(
         upload_to='amal_usaha/',
         blank=True,
