@@ -14,8 +14,14 @@
 
     .document-card {
         background: #FFFFFF;
-        border: 1px solid rgba(15, 37, 55, 0.1);
-        border-radius: 1rem;
+        border: 1px solid rgba(15, 37, 55, 0.08);
+        border-radius: 1.25rem;
+        transition: transform 0.28s cubic-bezier(.32, .72, 0, 1), box-shadow 0.28s ease;
+    }
+
+    .document-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(15, 37, 55, 0.08) !important;
     }
 
     .document-badge {
@@ -39,6 +45,7 @@
     .btn-document-outline {
         border-color: #059669;
         color: #059669;
+        background: #FFFFFF;
     }
 
     .btn-document-outline:hover,
@@ -46,28 +53,75 @@
         background: #059669;
         color: #FFFFFF;
     }
+
+    .doc-filter-btn {
+        border: 1px solid rgba(15, 37, 55, 0.12);
+        background: #FFFFFF;
+        color: #475569;
+        border-radius: 9999px;
+        padding: 0.45rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .doc-filter-btn:hover {
+        color: #0F2537;
+        border-color: rgba(5, 150, 105, 0.4);
+    }
+
+    .doc-filter-btn.active {
+        background: #0F2537;
+        border-color: #0F2537;
+        color: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(15, 37, 55, 0.16);
+    }
 </style>
 
-<header class="document-page mb-5">
-    <p class="text-success fw-semibold text-uppercase mb-2">PUSAT UNDUHAN &amp; ARSIP RESMI</p>
-    <h1 class="display-6 fw-bold">Pusat Unduhan Dokumen, SK &amp; Pustaka Muhammadiyah</h1>
-    <p class="text-secondary mb-0">Arsip Surat Keputusan (SK) pimpinan cabang dan ranting periode 2022–2027 serta pedoman resmi dan e-Book Persyarikatan Muhammadiyah.</p>
+<header class="document-page mb-6 rounded-3xl bg-gradient-to-br from-[#0F2537] via-[#15394A] to-[#059669] p-6 text-white shadow-lg sm:p-10">
+    <p class="text-xs font-bold uppercase tracking-widest text-emerald-200 mb-2">PUSAT UNDUHAN &amp; ARSIP RESMI</p>
+    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">Pusat Unduhan Dokumen, SK &amp; Pustaka Muhammadiyah</h1>
+    <p class="text-sm sm:text-base text-slate-200 max-w-3xl mb-0">Arsip Surat Keputusan (SK) pimpinan cabang dan ranting periode 2022–2027 serta pedoman resmi dan e-Book Persyarikatan Muhammadiyah.</p>
 </header>
 
-<div class="document-page">
+<!-- Bar Filter Kategori & Pencarian Dokumen -->
+<div class="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filter kategori dokumen">
+        <button type="button" class="doc-filter-btn active" data-doc-filter="semua">Semua</button>
+        <button type="button" class="doc-filter-btn" data-doc-filter="pedoman-pustaka">PHIWM &amp; Pustaka</button>
+        <button type="button" class="doc-filter-btn" data-doc-filter="dokumen-dasar">Dokumen Dasar Muhammadiyah</button>
+        <button type="button" class="doc-filter-btn" data-doc-filter="sk-cabang">SK Cabang</button>
+        <button type="button" class="doc-filter-btn" data-doc-filter="sk-ranting">SK Ranting (PRM)</button>
+    </div>
+    <div class="relative w-full lg:w-72">
+        <input type="search" id="doc-search-input"
+            class="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-4 pr-4 text-sm text-slate-800 shadow-sm placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            placeholder="Cari judul pedoman atau SK..." aria-label="Cari dokumen">
+    </div>
+</div>
+
+<div class="document-page space-y-10" id="doc-sections-container">
     {% if not dokumen_list %}
-    <div class="document-card p-4 text-secondary">Belum ada dokumen yang tersedia.</div>
+    <div class="document-card p-5 text-secondary shadow-sm">
+        Belum ada berkas PDF yang diunggah ke database. Jalankan <code>seed_pcm</code> atau unggah melalui panel admin untuk menampilkan arsip PDF Pedoman Hidup Islami Warga Muhammadiyah (PHIWM), MKCH, e-Book Muktamar 48, dan SK Resmi.
+    </div>
     {% endif %}
+
     {% for section in document_sections %}
     {% if section.documents %}
-    <section class="mb-5">
+    <section class="doc-section mb-5" data-section-id="{{ section.id }}" id="{{ section.id }}">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
-            <h2 class="document-section-title h3 fw-bold mb-0">{{ section.title }}</h2>
-            <span class="badge document-badge rounded-pill px-3 py-2">{{ section.badge }}</span>
+            <div>
+                <h2 class="document-section-title h3 fw-bold mb-0">{{ section.title }}</h2>
+                {% if section.id == 'pedoman-pustaka' %}
+                <p class="text-secondary small mb-0 mt-1">Termasuk Pedoman Hidup Islami Warga Muhammadiyah (PHIWM), Kepribadian Muhammadiyah &amp; MKCH, e-Book Muktamar ke-48, dan KHGT (format PDF siap unduh).</p>
+                {% endif %}
+            </div>
+            <span class="badge document-badge rounded-pill px-3 py-2 align-self-start align-self-sm-auto">{{ section.badge }}</span>
         </div>
         <div class="row g-3">
             {% for dokumen in section.documents %}
-            <div class="col-12">
+            <div class="col-12 doc-item">
                 <article class="document-card shadow-sm p-4">
                     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                         <div>
@@ -95,5 +149,91 @@
     </section>
     {% endif %}
     {% endfor %}
+
+    {% if dokumen_dasar_resmi %}
+    <section class="doc-section mb-5" data-section-id="dokumen-dasar" id="dokumen-dasar">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+            <div>
+                <h2 class="document-section-title h3 fw-bold mb-0">Dokumen Dasar Muhammadiyah (Rujukan PP Muhammadiyah)</h2>
+                <p class="text-secondary small mb-0 mt-1">Naskah dasar konstitusi, ideologi, dan garis perjuangan Persyarikatan dari portal resmi Pimpinan Pusat Muhammadiyah (muhammadiyah.or.id).</p>
+            </div>
+            <span class="badge rounded-pill px-3 py-2 align-self-start align-self-sm-auto text-white" style="background: #0F2537;">Naskah Resmi · PP Muhammadiyah</span>
+        </div>
+        <div class="row g-3">
+            {% for item in dokumen_dasar_resmi %}
+            <div class="col-md-6 doc-item">
+                <article class="document-card shadow-sm p-4 h-100 d-flex flex-column justify-content-between gap-3">
+                    <div>
+                        <span class="badge rounded-pill mb-2 text-emerald-800" style="background: #d1fae5;">{{ item.kategori }}</span>
+                        <h3 class="h5 fw-bold mb-2">{{ item.judul }}</h3>
+                        <p class="text-secondary small mb-0">{{ item.keterangan }}</p>
+                    </div>
+                    <div class="pt-2">
+                        <a class="btn btn-document-outline btn-sm px-3" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                            Baca Naskah Resmi ↗
+                        </a>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div id="doc-empty-search" class="d-none document-card p-5 text-center text-secondary shadow-sm">
+        Tidak ditemukan dokumen yang cocok dengan pencarian Anda.
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        const filterBtns = document.querySelectorAll('[data-doc-filter]');
+        const searchInput = document.getElementById('doc-search-input');
+        const sections = document.querySelectorAll('.doc-section');
+        const emptyBox = document.getElementById('doc-empty-search');
+        let activeFilter = 'semua';
+
+        function applyDocFilter() {
+            const keyword = (searchInput && searchInput.value ? searchInput.value : '').trim().toLowerCase();
+            let totalVisible = 0;
+
+            sections.forEach(function (section) {
+                const secId = section.dataset.sectionId;
+                const matchTab = activeFilter === 'semua' || secId === activeFilter;
+                if (!matchTab) {
+                    section.classList.add('d-none');
+                    return;
+                }
+
+                let secVisible = 0;
+                section.querySelectorAll('.doc-item').forEach(function (item) {
+                    const matchText = !keyword || item.textContent.toLowerCase().includes(keyword);
+                    item.classList.toggle('d-none', !matchText);
+                    if (matchText) secVisible++;
+                });
+
+                section.classList.toggle('d-none', secVisible === 0);
+                totalVisible += secVisible;
+            });
+
+            if (emptyBox) {
+                emptyBox.classList.toggle('d-none', totalVisible > 0 || sections.length === 0);
+            }
+        }
+
+        filterBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                activeFilter = btn.dataset.docFilter;
+                filterBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+                applyDocFilter();
+            });
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyDocFilter);
+        }
+    })();
+</script>
 {% endblock %}

@@ -29,6 +29,44 @@
           <p>✉️ <strong class="text-slate-800">Email:</strong><br>{{ profil.email|default:"pcmkartasura@gmail.com" }}</p>
         </div>
       </div>
+
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <h2 class="text-base font-bold text-[#0F2537] mb-3">Media Sosial Resmi</h2>
+        <div class="grid gap-2 text-xs font-semibold">
+          <a href="https://www.instagram.com/pcm.kartasura/" target="_blank" rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5 text-slate-700 ring-1 ring-slate-200/70 transition hover:bg-pink-50 hover:text-pink-700">
+            <span class="flex items-center gap-2.5">
+              {% include 'pcm_web/_ikon.html' with nama='instagram' kelas='h-4 w-4 text-pink-600' %}
+              <span>Instagram <span class="font-normal text-slate-400">@pcm.kartasura</span></span>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a href="https://www.youtube.com/@kajianmutv7091" target="_blank" rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5 text-slate-700 ring-1 ring-slate-200/70 transition hover:bg-red-50 hover:text-red-700">
+            <span class="flex items-center gap-2.5">
+              {% include 'pcm_web/_ikon.html' with nama='youtube' kelas='h-4 w-4 text-red-600' %}
+              <span>YouTube <span class="font-normal text-slate-400">Muhammadiyah Kartasura</span></span>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a href="https://www.facebook.com/pcm.kartasura/" target="_blank" rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5 text-slate-700 ring-1 ring-slate-200/70 transition hover:bg-blue-50 hover:text-blue-700">
+            <span class="flex items-center gap-2.5">
+              {% include 'pcm_web/_ikon.html' with nama='facebook' kelas='h-4 w-4 text-[#1877F2]' %}
+              <span>Facebook <span class="font-normal text-slate-400">@pcm.kartasura</span></span>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a href="https://wa.me/628121547207" target="_blank" rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5 text-slate-700 ring-1 ring-slate-200/70 transition hover:bg-emerald-50 hover:text-emerald-700">
+            <span class="flex items-center gap-2.5">
+              {% include 'pcm_web/_ikon.html' with nama='whatsapp' kelas='h-4 w-4 text-[#25D366]' %}
+              <span>WhatsApp <span class="font-normal text-slate-400">Sekretariat</span></span>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Formulir Pesan Masuk -->
