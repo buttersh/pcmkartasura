@@ -38,9 +38,17 @@
 
         {% if messages %}
           {% for message in messages %}
-            <div class="p-4 rounded-xl mb-6 text-sm {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
-              {{ message }}
-            </div>
+            {% if 'error' in message.tags %}
+              <div style="background-color: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px;">⚠️</span>
+                <span>{{ message }}</span>
+              </div>
+            {% else %}
+              <div style="background-color: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px;">✅</span>
+                <span>{{ message }}</span>
+              </div>
+            {% endif %}
           {% endfor %}
         {% endif %}
 
