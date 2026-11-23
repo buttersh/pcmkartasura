@@ -275,24 +275,66 @@ def daftar_unduhan(request):
     ]
     document_sections = [
         {
-            'title': 'SK Tingkat Cabang — PDM Sukoharjo',
-            'badge': 'Cabang · 2022–2027',
-            'documents': dokumen_cabang,
-        },
-        {
-            'title': 'SK Pimpinan Ranting Muhammadiyah (PRM)',
-            'badge': 'PRM · 2022–2027',
-            'documents': dokumen_ranting,
-        },
-        {
+            'id': 'pedoman-pustaka',
             'title': 'Pedoman & Pustaka Muhammadiyah',
             'badge': 'Pedoman & e-Book',
             'documents': dokumen_pustaka,
         },
         {
+            'id': 'sk-cabang',
+            'title': 'SK Tingkat Cabang — PDM Sukoharjo',
+            'badge': 'Cabang · 2022–2027',
+            'documents': dokumen_cabang,
+        },
+        {
+            'id': 'sk-ranting',
+            'title': 'SK Pimpinan Ranting Muhammadiyah (PRM)',
+            'badge': 'PRM · 2022–2027',
+            'documents': dokumen_ranting,
+        },
+        {
+            'id': 'dokumen-lainnya',
             'title': 'Dokumen Resmi Lainnya',
             'badge': 'Dokumen resmi',
             'documents': dokumen_lainnya,
+        },
+    ]
+    dokumen_dasar_resmi = [
+        {
+            'judul': 'Muqaddimah Anggaran Dasar Muhammadiyah',
+            'kategori': 'Dokumen Dasar',
+            'keterangan': 'Rumusan ideologi, pandangan dasar, dan tujuh pokok pikiran perjuangan Persyarikatan Muhammadiyah.',
+            'url': 'https://muhammadiyah.or.id/muqodimah-anggaran-dasar/',
+        },
+        {
+            'judul': 'Anggaran Dasar Muhammadiyah',
+            'kategori': 'Konstitusi Organisasi',
+            'keterangan': 'Ketentuan pokok mengenai identitas, asas, maksud dan tujuan, keanggotaan, serta susunan organisasi Muhammadiyah.',
+            'url': 'https://muhammadiyah.or.id/anggaran-dasar/',
+        },
+        {
+            'judul': 'Anggaran Rumah Tangga Muhammadiyah',
+            'kategori': 'Konstitusi Organisasi',
+            'keterangan': 'Aturan pelaksanaan Anggaran Dasar terkait keanggotaan, tata kelola pimpinan, majelis, lembaga, dan permusyawaratan.',
+            'url': 'https://muhammadiyah.or.id/anggaran-rumah-tangga/',
+        },
+        {
+            'judul': 'Kepribadian Muhammadiyah',
+            'kategori': 'Ideologi Muhammadiyah',
+            'keterangan': 'Pedoman jati diri, sifat, dan karakter perjuangan warga serta pimpinan Persyarikatan Muhammadiyah.',
+            'url': 'https://muhammadiyah.or.id/kepribadian-muhammadiyah/',
+        },
+        {
+            'judul': 'Matan Keyakinan dan Cita-Cita Hidup Muhammadiyah (MKCH)',
+            'kategori': 'Ideologi Muhammadiyah',
+            'keterangan': 'Rumusan keyakinan akidah, paham agama, dan cita-cita sosial Muhammadiyah berdasarkan Al-Qur’an dan As-Sunnah.',
+            'url': 'https://muhammadiyah.or.id/matan-keyakinan-dan-cita-cita-hidup-muhammadiyah/',
+        },
+        {
+            'judul': 'Khittah Perjuangan Muhammadiyah',
+            'kategori': 'Garis Perjuangan',
+            'keterangan': 'Garis besar landasan dan strategi perjuangan Muhammadiyah dalam kehidupan bermasyarakat, berbangsa, dan bernegara.',
+            'url': 'https://muhammadiyah.or.id/khittah/',
         },
     ]
     return render(
@@ -301,6 +343,7 @@ def daftar_unduhan(request):
         {
             'dokumen_list': dokumen_list,
             'document_sections': document_sections,
+            'dokumen_dasar_resmi': dokumen_dasar_resmi,
         },
     )
 

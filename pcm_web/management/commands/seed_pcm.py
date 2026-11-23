@@ -97,14 +97,14 @@ SK_DOKUMEN = (
 
 PUSTAKA_DOKUMEN = (
     (
-        "Kepribadian Muhammadiyah dan Matan Keyakinan dan Cita-Cita Hidup Muhammadiyah (MKCH)",
-        "1brjg9eItxHdYd77sGlfrxGEniRUobI-j",
-        "Pedoman Ideologi Muhammadiyah: Kepribadian Muhammadiyah dan MKCH.",
-    ),
-    (
         "Pedoman Hidup Islami Warga Muhammadiyah (PHIWM)",
         "1L74Qk7eTZ8GiqKUvctywPNz6OriGb2Ig",
-        "Pedoman Hidup Islami Warga Muhammadiyah (PHIWM).",
+        "Seperangkat nilai dan norma Islami bersumber Al-Qur'an dan As-Sunnah sebagai pola tingkah laku warga Muhammadiyah dalam kehidupan pribadi, keluarga, bermasyarakat, dan berorganisasi.",
+    ),
+    (
+        "Kepribadian Muhammadiyah dan Matan Keyakinan dan Cita-Cita Hidup Muhammadiyah (MKCH)",
+        "1brjg9eItxHdYd77sGlfrxGEniRUobI-j",
+        "Dokumen dasar ideologi Persyarikatan Muhammadiyah: Kepribadian Muhammadiyah serta Matan Keyakinan dan Cita-Cita Hidup Muhammadiyah (MKCH).",
     ),
     (
         "e-Book Muktamar 48: Kuntum Khoiro Ummah",

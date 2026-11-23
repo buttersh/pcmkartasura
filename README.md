@@ -170,3 +170,24 @@ Semua data pimpinan, ranting, dan dokumen SK diperoleh dan digunakan atas izin r
 | SK PCM Kartasura Susunan PRM Kartasura 2022–2027 | [Google Drive](https://drive.google.com/file/d/1q5XqVhhDxyqt1xyDlfNXTTSLMsWqwijo/view?usp=drive_link) | 16 November 2026 |
 | SK PCM Kartasura Susunan PRM Gonilan 2022–2027 | [Google Drive](https://drive.google.com/file/d/1BoU70gewqgQrGXH6LMmvUT10Y_4fXNMd/view?usp=drive_link) | 16 November 2026 |
 | SK PCM Kartasura Susunan PRM Singopuran 2022–2027 | [Google Drive](https://drive.google.com/file/d/1duR7aLQcqgKtuq4gXI46ZQKzbtor0DJN/view?usp=drive_link) | 16 November 2026 |
+
+### Tabel Sumber Pedoman, Pustaka & Dokumen Dasar Muhammadiyah
+
+| Dokumen | Sumber | Tanggal Diambil |
+| --- | --- | --- |
+| Pedoman Hidup Islami Warga Muhammadiyah (PHIWM) (PDF) | [Google Drive](https://drive.google.com/file/d/1L74Qk7eTZ8GiqKUvctywPNz6OriGb2Ig/view) | 23 November 2026 |
+| Kepribadian Muhammadiyah dan MKCH (PDF) | [Google Drive](https://drive.google.com/file/d/1brjg9eItxHdYd77sGlfrxGEniRUobI-j/view) | 23 November 2026 |
+| e-Book Muktamar 48: Kuntum Khoiro Ummah (PDF) | [Google Drive](https://drive.google.com/file/d/1q95daieyLhIAALQYurduSd54N7coliWB/view) | 23 November 2026 |
+| e-Book Muktamar 48: Al-Insan Wa Al-Ilm (PDF) | [Google Drive](https://drive.google.com/file/d/1AHGqlRtCMngyVBCQ8-e5Xd88Gg8UceEQ/view) | 23 November 2026 |
+| e-Book Muktamar 48: Hablum Minannas (PDF) | [Google Drive](https://drive.google.com/file/d/16bdVf90WL0rDNcAHfAwplKfqeRRJRP6r/view) | 23 November 2026 |
+| Kalender Hijriah Global Tunggal (KHGT) (PDF) | [Google Drive](https://drive.google.com/file/d/1BfWFIZROsBhaXJ--FVND5YgcRvdQtABV/view) | 23 November 2026 |
+| Muqaddimah Anggaran Dasar, AD/ART, Kepribadian, MKCH, Khittah Muhammadiyah | [muhammadiyah.or.id](https://muhammadiyah.or.id/) | 24 November 2026 |
+
+### Media Sosial Resmi PCM Kartasura
+
+| Platform | Akun / Tautan | Tanggal Diverifikasi |
+| --- | --- | --- |
+| Instagram | [@pcm.kartasura](https://www.instagram.com/pcm.kartasura/) | 24 November 2026 |
+| YouTube | [Muhammadiyah Kartasura (@kajianmutv7091)](https://www.youtube.com/@kajianmutv7091) | 24 November 2026 |
+| Facebook | [Pcm Kartasura (@pcm.kartasura)](https://www.facebook.com/pcm.kartasura/) | 24 November 2026 |
+| WhatsApp Sekretariat | [08121547207](https://wa.me/628121547207) | 24 November 2026 |
