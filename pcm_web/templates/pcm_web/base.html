@@ -3,187 +3,531 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0F2537">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F2F2F7">
   <title>{% block title %}PCM Kartasura{% endblock %}</title>
   {% block meta_og %}{% endblock %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'pcm_web/images/muhammadiyah.svg' %}">
+  <script>document.documentElement.classList.add('js');</script>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={theme:{extend:{colors:{navy:'#0F2537',cream:'#FAF6F0',emerald:'#059669'}}}}</script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#0F2537',
+            cream: '#FAF6F0',
+            emerald: {
+              DEFAULT: '#059669',
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399',
+              500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b',
+            },
+          },
+        },
+      },
+    };
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --pcm-navy: #0F2537;
       --pcm-putih: #FFFFFF;
       --pcm-cream: #FAF6F0;
       --pcm-hijau: #059669;
+      --ease-ios: cubic-bezier(.32, .72, 0, 1);
+      --spring: cubic-bezier(.34, 1.56, .64, 1);
     }
+
+    /* ---------- Dasar ala iOS ---------- */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    html.lock { overflow: hidden; }
     body {
-      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #F2F2F7;
+      letter-spacing: -.006em;
+      -webkit-tap-highlight-color: transparent;
     }
-    a {
-      text-decoration: none;
+    a { text-decoration: none; }
+    main h1, main h2, main h3 { letter-spacing: -.022em; }
+    ::selection { background: rgba(5, 150, 105, .22); }
+    :focus-visible { outline: 3px solid rgba(5, 150, 105, .45); outline-offset: 2px; border-radius: .5rem; }
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    @view-transition { navigation: auto; }
+
+    /* ---------- Material kaca (frosted glass) ---------- */
+    .ios-glass {
+      background: rgba(255, 255, 255, .72);
+      -webkit-backdrop-filter: saturate(180%) blur(22px);
+      backdrop-filter: saturate(180%) blur(22px);
+    }
+    #site-header { box-shadow: 0 .5px 0 rgba(0, 0, 0, .10); transition: box-shadow .3s ease, background-color .3s ease; }
+    #site-header.scrolled { box-shadow: 0 .5px 0 rgba(0, 0, 0, .14), 0 10px 30px rgba(15, 37, 55, .08); background: rgba(255, 255, 255, .86); }
+    #scroll-progress { transform-origin: 0 50%; transform: scaleX(0); }
+
+    /* ---------- Navigasi segmented (desktop) ---------- */
+    #nav-pill { transition: transform .45s var(--ease-ios), width .45s var(--ease-ios), opacity .25s ease; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 3px 10px rgba(15,37,55,.10); }
+    #nav-pill.no-anim { transition: none; }
+    .nav-l { color: #475569; transition: color .2s ease, transform .25s var(--ease-ios); }
+    .nav-l:hover, .nav-l[aria-current="page"] { color: var(--pcm-navy); }
+    .nav-l:active { transform: scale(.94); }
+
+    /* ---------- Tab bar mengambang (mobile/tablet) ---------- */
+    .tab { color: #64748b; transition: color .2s ease, background-color .25s ease, transform .3s var(--spring); }
+    .tab:active { transform: scale(.9); }
+    .tab[aria-current="page"] { color: #047857; background: rgba(5, 150, 105, .12); }
+    .tab[aria-current="page"] svg { transform: translateY(-1px) scale(1.08); }
+    .tab svg { transition: transform .35s var(--spring); }
+
+    /* ---------- Lapisan: bottom sheet & spotlight ---------- */
+    .layer { position: fixed; inset: 0; z-index: 70; visibility: hidden; transition: visibility 0s linear .5s; }
+    .layer.open { visibility: visible; transition-delay: 0s; }
+    .layer-bg { position: absolute; inset: 0; background: rgba(15, 23, 42, .32); opacity: 0; transition: opacity .45s ease; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .layer.open .layer-bg { opacity: 1; }
+    .sheet-panel { transform: translateY(105%); transition: transform .55s var(--ease-ios); will-change: transform; }
+    .layer.open .sheet-panel { transform: translateY(0); }
+    .spot-panel { opacity: 0; transform: translateY(-14px) scale(.96); transition: opacity .3s ease, transform .5s var(--ease-ios); }
+    .layer.open .spot-panel { opacity: 1; transform: none; }
+    .tile { transition: transform .3s var(--spring), box-shadow .3s ease; }
+    .tile:active { transform: scale(.92); }
+    .tile:hover .tile-ico { transform: translateY(-2px) scale(1.05); }
+    .tile-ico { transition: transform .35s var(--spring); }
+
+    /* ---------- Widget jadwal shalat ---------- */
+    .prayer { transition: background-color .3s ease, color .3s ease, transform .35s var(--spring), box-shadow .3s ease; }
+    .prayer.next { background: var(--pcm-hijau); color: #fff; transform: scale(1.04); box-shadow: 0 8px 20px rgba(5, 150, 105, .35); }
+    .prayer.next .p-label { color: rgba(255,255,255,.85); }
+    .prayer.passed { opacity: .55; }
+
+    /* ---------- Animasi muncul saat scroll ---------- */
+    .js .reveal { opacity: 0; }
+    .js .reveal.reveal-in { opacity: 1; animation: rise .7s var(--ease-ios) var(--d, 0ms) backwards; }
+    @keyframes rise { from { opacity: 0; transform: translateY(20px) scale(.985); } to { opacity: 1; transform: none; } }
+
+    /* ---------- Poles komponen halaman lain agar senada iOS ---------- */
+    main .grid > article, main .grid > a { transition: transform .4s var(--ease-ios), box-shadow .4s var(--ease-ios); }
+    main .grid > article:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(15, 37, 55, .10); }
+    main a[class*="rounded"], main button { transition: transform .25s var(--ease-ios), background-color .2s ease, color .2s ease, box-shadow .2s ease; }
+    main a[class*="rounded"]:active, main button:active { transform: scale(.97); }
+    .btn { border-radius: 9999px; font-weight: 600; transition: transform .25s var(--ease-ios), background-color .2s ease, box-shadow .2s ease; }
+    .btn:active { transform: scale(.96); }
+    .card { border: 0; border-radius: 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(15, 37, 55, .06); }
+    .page-link { border: 0; border-radius: 9999px !important; margin: 0 .15rem; color: var(--pcm-navy); transition: transform .2s var(--ease-ios), background-color .2s; }
+    .page-link:hover { transform: translateY(-1px); }
+    .page-item.active .page-link { background: var(--pcm-hijau); color: #fff; }
+    .form-control, .form-select { border-radius: .9rem; }
+    .alert { border: 0; border-radius: 1rem; }
+    input[type="search"]::-webkit-search-cancel-button { cursor: pointer; }
+    #to-top { transition: opacity .3s ease, transform .4s var(--spring), visibility .3s; }
+    #to-top.hide { opacity: 0; transform: translateY(12px) scale(.8); visibility: hidden; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+      .js .reveal { opacity: 1; }
     }
   </style>
+  {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen bg-cream text-slate-800 flex flex-col">
+<body class="min-h-screen text-slate-800 flex flex-col pb-[calc(5.75rem+env(safe-area-inset-bottom))] xl:pb-0">
+{% with u=request.resolver_match.url_name %}
+
+  <a href="#konten" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[90] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg">Lewati ke konten</a>
+
   <!-- Bar Waktu & Kalender -->
-  <div class="bg-[#0b1b28] text-slate-300 text-xs sm:text-sm border-b border-white/10">
+  <div class="bg-[#0b1b28] text-slate-300 text-xs sm:text-sm">
     <div class="mx-auto max-w-7xl px-4 py-2 flex flex-wrap justify-between items-center gap-2">
       <span class="flex items-center gap-2">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald"></span>
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald animate-pulse"></span>
         KHGT (Kalender Hijriah Global Tunggal)
       </span>
-      <span id="realtime-clock" class="font-mono text-emerald-300" aria-live="off">--:--:-- WIB</span>
+      <span id="realtime-clock" class="font-mono tabular-nums text-emerald-300" aria-live="off">--:--:-- WIB</span>
     </div>
   </div>
 
-  <!-- Header Navigasi -->
-  <header class="bg-navy text-white shadow-lg sticky top-0 z-40">
-    <nav class="mx-auto max-w-7xl px-4 py-3 flex flex-wrap items-center justify-between gap-4" aria-label="Navigasi utama">
-      <a href="{% url 'pcm_web:beranda' %}" class="flex items-center gap-3 text-white">
-        <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 object-contain">
-        <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-extrabold tracking-wide uppercase leading-tight text-white">{{ profil.nama_singkat|default:"PCM KARTASURA" }}</span>
-          <span class="text-[11px] text-emerald-300 font-medium">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</span>
-        </div>
+  <!-- Header Navigasi (kaca buram, menempel di atas) -->
+  <header id="site-header" class="ios-glass sticky top-0 z-40">
+    <div id="scroll-progress" class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald" aria-hidden="true"></div>
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
+      <a href="{% url 'pcm_web:beranda' %}" class="group flex min-w-0 items-center gap-3 text-navy" aria-label="Beranda {{ profil.nama_singkat|default:'PCM Kartasura' }}">
+        <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 shrink-0 object-contain transition-transform duration-500 group-hover:rotate-[8deg] group-active:scale-90" width="40" height="40">
+        <span class="flex min-w-0 flex-col">
+          <span class="truncate text-[15px] font-extrabold uppercase leading-tight tracking-wide text-navy sm:text-base">{{ profil.nama_singkat|default:"PCM KARTASURA" }}</span>
+          <span class="truncate text-[11px] font-medium text-emerald-700">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</span>
+        </span>
       </a>
 
-      <button id="nav-toggle" class="md:hidden rounded-lg border border-white/30 px-3 py-2 text-sm" aria-expanded="false" aria-controls="main-nav">Menu</button>
+      <!-- Navigasi desktop: segmented control dengan indikator geser -->
+      <nav class="hidden xl:block" aria-label="Navigasi utama">
+        <div id="seg-nav" class="relative flex items-center rounded-full bg-slate-900/[.06] p-1">
+          <span id="nav-pill" class="no-anim absolute left-0 top-1 bottom-1 w-0 rounded-full bg-white opacity-0" aria-hidden="true"></span>
+          <a href="{% url 'pcm_web:beranda' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'beranda' %}aria-current="page"{% endif %}>Beranda</a>
+          <a href="{% url 'pcm_web:profil_pcm' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'profil_pcm' or u == 'profil' %}aria-current="page"{% endif %}>Profil</a>
+          <a href="{% url 'pcm_web:pimpinan_pcm' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'pimpinan_pcm' or u == 'pimpinan' %}aria-current="page"{% endif %}>Pimpinan</a>
+          <a href="{% url 'pcm_web:amal_usaha' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'amal_usaha' %}aria-current="page"{% endif %}>AUM</a>
+          <a href="{% url 'pcm_web:ranting' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'ranting' %}aria-current="page"{% endif %}>PRM/PRA</a>
+          <a href="{% url 'pcm_web:daftar_berita' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'daftar_berita' or u == 'berita' or u == 'detail_berita' or u == 'cari_berita' %}aria-current="page"{% endif %}>Berita</a>
+          <a href="{% url 'pcm_web:agenda' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'agenda' %}aria-current="page"{% endif %}>Agenda</a>
+          <a href="{% url 'pcm_web:daftar_unduhan' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'daftar_unduhan' %}aria-current="page"{% endif %}>Unduhan</a>
+          <a href="{% url 'pcm_web:kontak' %}" class="nav-l relative z-10 rounded-full px-3.5 py-1.5 text-[13px] font-semibold" {% if u == 'kontak' %}aria-current="page"{% endif %}>Kontak</a>
+        </div>
+      </nav>
 
-      <div id="main-nav" class="hidden md:flex w-full md:w-auto flex-col md:flex-row md:items-center gap-2 md:gap-5 text-sm font-medium">
-        <a href="{% url 'pcm_web:beranda' %}" class="text-white hover:text-emerald-300 transition py-1">Beranda</a>
-        <a href="{% url 'pcm_web:profil_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Profil</a>
-        <a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Pimpinan</a>
-        
-        <a href="{% url 'pcm_web:amal_usaha' %}" class="text-white hover:text-emerald-300 transition py-1">AUM</a>
-        <a href="{% url 'pcm_web:ranting' %}" class="text-white hover:text-emerald-300 transition py-1">PRM/PRA</a>
-        <a href="{% url 'pcm_web:daftar_berita' %}" class="text-white hover:text-emerald-300 transition py-1">Berita</a>
-        <a href="{% url 'pcm_web:agenda' %}" class="text-white hover:text-emerald-300 transition py-1">Agenda</a>
-        <a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-white hover:text-emerald-300 transition py-1">Unduhan</a>
-        <a href="{% url 'pcm_web:kontak' %}" class="text-white hover:text-emerald-300 transition py-1">Kontak</a>
-
-        <!-- Form Pencarian Header -->
-        <form action="{% url 'pcm_web:cari_berita' %}" method="GET" class="flex items-center gap-1 md:ml-2">
-          <input type="text" name="q" placeholder="Cari..." class="rounded-lg bg-white/10 border border-white/20 px-2.5 py-1 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 w-28 sm:w-36">
-          <button type="submit" class="rounded-lg bg-emerald px-2 py-1 text-xs text-white hover:bg-emerald-600 transition">🔍</button>
-        </form>
-      </div>
-    </nav>
+      <!-- Tombol pencarian (membuka Spotlight) -->
+      <button type="button" data-open="spot" class="group flex shrink-0 items-center gap-2 rounded-full bg-slate-900/[.06] px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-900/10 active:scale-95 xl:px-4" aria-label="Cari berita">
+        {% include 'pcm_web/_ikon.html' with nama='search' kelas='h-[18px] w-[18px]' %}
+        <span class="hidden xl:inline">Cari berita</span>
+        <kbd class="ml-1 hidden rounded-md border border-slate-300 bg-white px-1.5 text-[10px] font-semibold text-slate-400 xl:inline">/</kbd>
+      </button>
+    </div>
   </header>
 
-  <!-- Bar Jadwal Shalat Real-time API -->
+  <!-- Jadwal Shalat (widget interaktif, data dari API) -->
   {% if jadwal_shalat %}
-  <section class="bg-emerald text-white shadow-inner" aria-label="Jadwal shalat">
-    <div class="mx-auto max-w-7xl px-4 py-2 flex flex-wrap justify-center sm:justify-between items-center gap-x-5 gap-y-1 text-xs">
-      <strong class="text-emerald-100 flex items-center gap-1">
-        <span>🕌</span> Jadwal Shalat Kartasura/Surakarta{% if jadwal_shalat.tanggal %} · {{ jadwal_shalat.tanggal }}{% endif %}
-      </strong>
-      <div class="flex flex-wrap justify-center gap-x-3 gap-y-1">
-        <span>Imsak <b>{{ jadwal_shalat.imsak }}</b></span>
-        <span>Subuh <b>{{ jadwal_shalat.subuh }}</b></span>
-        <span>Terbit <b>{{ jadwal_shalat.terbit }}</b></span>
-        <span>Dzuhur <b>{{ jadwal_shalat.dzuhur }}</b></span>
-        <span>Ashar <b>{{ jadwal_shalat.ashar }}</b></span>
-        <span>Maghrib <b>{{ jadwal_shalat.maghrib }}</b></span>
-        <span>Isya <b>{{ jadwal_shalat.isya }}</b></span>
+  <section class="px-3 pt-3 sm:px-4" aria-label="Jadwal shalat">
+    <div class="mx-auto max-w-7xl rounded-[22px] bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,.04),0_8px_24px_rgba(15,37,55,.06)] ring-1 ring-black/[.04] sm:p-4">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-1">
+        <strong class="flex items-center gap-2 text-[13px] font-bold text-navy">
+          <span class="inline-block h-2 w-2 rounded-full bg-emerald"></span>
+          Jadwal Shalat Kartasura/Surakarta{% if jadwal_shalat.tanggal %} · <span class="font-medium text-slate-500">{{ jadwal_shalat.tanggal }}</span>{% endif %}
+        </strong>
+        <span id="prayer-countdown" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 tabular-nums" aria-live="off"></span>
+      </div>
+      <div id="prayer-row" class="no-scrollbar -mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 sm:grid sm:grid-cols-7 sm:overflow-visible">
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-nama="Imsak" data-waktu="{{ jadwal_shalat.imsak }}"><span class="p-label block text-[11px] font-medium text-slate-500">Imsak</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.imsak }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-fardhu="1" data-nama="Subuh" data-waktu="{{ jadwal_shalat.subuh }}"><span class="p-label block text-[11px] font-medium text-slate-500">Subuh</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.subuh }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-nama="Terbit" data-waktu="{{ jadwal_shalat.terbit }}"><span class="p-label block text-[11px] font-medium text-slate-500">Terbit</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.terbit }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-fardhu="1" data-nama="Dzuhur" data-waktu="{{ jadwal_shalat.dzuhur }}"><span class="p-label block text-[11px] font-medium text-slate-500">Dzuhur</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.dzuhur }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-fardhu="1" data-nama="Ashar" data-waktu="{{ jadwal_shalat.ashar }}"><span class="p-label block text-[11px] font-medium text-slate-500">Ashar</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.ashar }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-fardhu="1" data-nama="Maghrib" data-waktu="{{ jadwal_shalat.maghrib }}"><span class="p-label block text-[11px] font-medium text-slate-500">Maghrib</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.maghrib }}</b></div>
+        <div class="prayer snap-start min-w-[88px] shrink-0 rounded-2xl bg-slate-50 px-3 py-2.5 text-center sm:min-w-0" data-fardhu="1" data-nama="Isya" data-waktu="{{ jadwal_shalat.isya }}"><span class="p-label block text-[11px] font-medium text-slate-500">Isya</span><b class="text-[15px] tabular-nums">{{ jadwal_shalat.isya }}</b></div>
       </div>
     </div>
   </section>
   {% endif %}
 
   <!-- Konten Utama -->
-  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:py-10">
+  <main id="konten" class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:py-10">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer Lengkap Sesuai Ketentuan Tugas -->
-  <footer class="bg-navy text-slate-300 mt-16 border-t border-white/10">
-    <div class="mx-auto max-w-7xl px-4 py-12">
-      <div class="grid gap-8 md:grid-cols-4">
-        <!-- Kolom Profil -->
-        <div class="md:col-span-2">
-          <div class="flex items-center gap-3 mb-4">
-            <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 object-contain">
-            <div>
-              <h3 class="text-lg font-bold text-white">{{ profil.nama|default:"Pimpinan Cabang Muhammadiyah Kartasura" }}</h3>
-              <p class="text-xs text-emerald-400 font-medium">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</p>
+  <footer class="px-3 pb-3 pt-6 sm:px-4 sm:pb-6">
+    <div class="mx-auto max-w-7xl overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0F2537] via-[#0f2c3d] to-[#0b1b28] text-slate-300 shadow-[0_20px_50px_rgba(15,37,55,.25)]">
+      <div class="px-6 py-10 sm:px-10 sm:py-12">
+        <div class="grid gap-8 md:grid-cols-4">
+          <!-- Kolom Profil -->
+          <div class="md:col-span-2">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/95 p-1.5 shadow-lg">
+                <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-full w-full object-contain">
+              </span>
+              <div>
+                <h3 class="text-lg font-bold text-white">{{ profil.nama|default:"Pimpinan Cabang Muhammadiyah Kartasura" }}</h3>
+                <p class="text-xs font-medium text-emerald-400">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</p>
+              </div>
+            </div>
+            <p class="mb-4 text-sm leading-relaxed text-slate-300">
+              {{ profil.tentang|default:"Pimpinan Cabang Muhammadiyah Kartasura adalah organisasi tingkat cabang di bawah Pimpinan Daerah Muhammadiyah Kabupaten Sukoharjo yang menggerakkan dakwah Islam amar ma'ruf nahi munkar serta mengelola berbagai Amal Usaha Muhammadiyah di Kecamatan Kartasura." }}
+            </p>
+            <div class="space-y-1 rounded-2xl bg-white/[.06] p-4 text-xs text-slate-400 ring-1 ring-white/10">
+              <p><strong class="text-slate-200">Sekretariat:</strong> {{ profil.alamat_sekretariat|default:"Jl. Slamet Riyadi No. 270B, Sidokerto, Dusun III, Gumpang, Kec. Kartasura, Kabupaten Sukoharjo, Jawa Tengah 57169" }}</p>
+              <p><strong class="text-slate-200">Telepon:</strong> {{ profil.telepon|default:"08121547207" }} | <strong class="text-slate-200">Email:</strong> {{ profil.email|default:"pcmkartasura@gmail.com" }}</p>
             </div>
           </div>
-          <p class="text-sm text-slate-300 leading-relaxed mb-4">
-            {{ profil.tentang|default:"Pimpinan Cabang Muhammadiyah Kartasura adalah organisasi tingkat cabang di bawah Pimpinan Daerah Muhammadiyah Kabupaten Sukoharjo yang menggerakkan dakwah Islam amar ma'ruf nahi munkar serta mengelola berbagai Amal Usaha Muhammadiyah di Kecamatan Kartasura." }}
-          </p>
-          <div class="text-xs text-slate-400 space-y-1">
-            <p><strong class="text-slate-200">Sekretariat:</strong> {{ profil.alamat_sekretariat|default:"Jl. Slamet Riyadi No. 270B, Sidokerto, Dusun III, Gumpang, Kec. Kartasura, Kabupaten Sukoharjo, Jawa Tengah 57169" }}</p>
-            <p><strong class="text-slate-200">Telepon:</strong> {{ profil.telepon|default:"08121547207" }} | <strong class="text-slate-200">Email:</strong> {{ profil.email|default:"pcmkartasura@gmail.com" }}</p>
+
+          <!-- Kolom Navigasi Cepat -->
+          <div>
+            <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-white">Menu Utama</h4>
+            <ul class="list-unstyled mb-0 space-y-2 text-sm">
+              <li><a href="{% url 'pcm_web:beranda' %}" class="text-slate-300 transition hover:text-emerald-300">Beranda</a></li>
+              <li><a href="{% url 'pcm_web:profil_pcm' %}" class="text-slate-300 transition hover:text-emerald-300">Profil &amp; Sejarah</a></li>
+              <li><a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-slate-300 transition hover:text-emerald-300">Struktur Pimpinan</a></li>
+              <li><a href="{% url 'pcm_web:amal_usaha' %}" class="text-slate-300 transition hover:text-emerald-300">Amal Usaha (AUM)</a></li>
+              <li><a href="{% url 'pcm_web:ranting' %}" class="text-slate-300 transition hover:text-emerald-300">Daftar Ranting (PRM)</a></li>
+              <li><a href="{% url 'pcm_web:daftar_berita' %}" class="text-slate-300 transition hover:text-emerald-300">Berita Terkini</a></li>
+              <li><a href="{% url 'pcm_web:agenda' %}" class="text-slate-300 transition hover:text-emerald-300">Agenda Kegiatan</a></li>
+              <li><a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-slate-300 transition hover:text-emerald-300">Unduhan</a></li>
+              <li><a href="{% url 'pcm_web:kontak' %}" class="text-slate-300 transition hover:text-emerald-300">Kontak Sekretariat</a></li>
+            </ul>
+          </div>
+
+          <!-- Kolom Tautan Persyarikatan (Rubrik Wajib) -->
+          <div>
+            <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-white">Tautan Persyarikatan</h4>
+            <ul class="list-unstyled mb-0 space-y-2 text-sm">
+              {% if tautan_terkait %}
+                {% for tautan in tautan_terkait %}
+                  <li><a href="{{ tautan.url }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-slate-300 transition hover:text-emerald-300"><span>↗</span> {{ tautan.nama }}</a></li>
+                {% endfor %}
+              {% else %}
+                <li><a href="https://muhammadiyah.or.id" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-slate-300 transition hover:text-emerald-300"><span>↗</span> PP Muhammadiyah</a></li>
+                <li><a href="https://pwmjateng.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-slate-300 transition hover:text-emerald-300"><span>↗</span> PWM Jawa Tengah</a></li>
+                <li><a href="https://pdmsukoharjo.or.id" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-slate-300 transition hover:text-emerald-300"><span>↗</span> PDM Sukoharjo</a></li>
+              {% endif %}
+            </ul>
           </div>
         </div>
 
-        <!-- Kolom Navigasi Cepat -->
-        <div>
-          <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Menu Utama</h4>
-          <ul class="space-y-2 text-sm list-unstyled">
-            <li><a href="{% url 'pcm_web:beranda' %}" class="text-slate-300 hover:text-emerald-300 transition">Beranda</a></li>
-            <li><a href="{% url 'pcm_web:profil_pcm' %}" class="text-slate-300 hover:text-emerald-300 transition">Profil &amp; Sejarah</a></li>
-            <li><a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-slate-300 hover:text-emerald-300 transition">Struktur Pimpinan</a></li>
-            <li><a href="{% url 'pcm_web:amal_usaha' %}" class="text-slate-300 hover:text-emerald-300 transition">Amal Usaha (AUM)</a></li>
-            <li><a href="{% url 'pcm_web:ranting' %}" class="text-slate-300 hover:text-emerald-300 transition">Daftar Ranting (PRM)</a></li>
-            <li><a href="{% url 'pcm_web:daftar_berita' %}" class="text-slate-300 hover:text-emerald-300 transition">Berita Terkini</a></li>
-            <li><a href="{% url 'pcm_web:agenda' %}" class="text-slate-300 hover:text-emerald-300 transition">Agenda Kegiatan</a></li>
-            <li><a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-slate-300 hover:text-emerald-300 transition">Unduhan</a></li>
-            <li><a href="{% url 'pcm_web:kontak' %}" class="text-slate-300 hover:text-emerald-300 transition">Kontak Sekretariat</a></li>
-          </ul>
+        <!-- Keterangan Tugas Kuliah & Atribusi Wajib -->
+        <div class="mt-10 space-y-2 border-t border-white/10 pt-6 text-center text-xs text-slate-400 sm:text-left">
+          <p class="font-medium text-slate-300">
+            ⚠️ <em>Website ini dibuat untuk tugas kuliah Pemrograman Web berbasis Framework (TIF1336), bukan website resmi PCM Kartasura.</em>
+          </p>
+          <p>
+            Logo Muhammadiyah: K. H. Siradj Dahlan, vektor oleh Hibensis, via Wikimedia Commons, lisensi CC BY-SA 4.0.
+          </p>
+          <p>
+            Data profil, struktur pengurus, pimpinan ranting, dan dokumen SK bersumber dari SK Resmi PCM/PDM atas izin Drs. Abdul Fatah Bintoro (Sekretaris PCM Kartasura). Berita disinkronisasi dari portal resmi PDM Sukoharjo.
+          </p>
         </div>
-
-        <!-- Kolom Tautan Persyarikatan (Rubrik Wajib) -->
-        <div>
-          <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Tautan Persyarikatan</h4>
-          <ul class="space-y-2 text-sm list-unstyled">
-            {% if tautan_terkait %}
-              {% for tautan in tautan_terkait %}
-                <li><a href="{{ tautan.url }}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> {{ tautan.nama }}</a></li>
-              {% endfor %}
-            {% else %}
-              <li><a href="https://muhammadiyah.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PP Muhammadiyah</a></li>
-              <li><a href="https://jateng.muhammadiyah.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PWM Jawa Tengah</a></li>
-              <li><a href="https://pdmsukoharjo.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PDM Sukoharjo</a></li>
-            {% endif %}
-          </ul>
-        </div>
-      </div>
-
-      <!-- Garis Pemisah & Keterangan Tugas Kuliah Wajib -->
-      <div class="mt-10 pt-6 border-t border-white/10 text-xs text-slate-400 space-y-2 text-center sm:text-left">
-        <p class="font-medium text-slate-300">
-          ⚠️ <em>Website ini dibuat untuk tugas kuliah Pemrograman Web berbasis Framework (TIF1336), bukan website resmi PCM Kartasura.</em>
-        </p>
-        <p>
-          Logo Muhammadiyah: K. H. Siradj Dahlan, vektor oleh Hibensis, via Wikimedia Commons, lisensi CC BY-SA 4.0.
-        </p>
-        <p>
-          Data profil, struktur pengurus, pimpinan ranting, dan dokumen SK bersumber dari SK Resmi PCM/PDM atas izin Drs. Abdul Fatah Bintoro (Sekretaris PCM Kartasura). Berita disinkronisasi dari portal resmi PDM Sukoharjo.
-        </p>
       </div>
     </div>
   </footer>
 
+  <!-- Tombol kembali ke atas -->
+  <button id="to-top" type="button" class="hide fixed right-4 z-[45] flex h-11 w-11 items-center justify-center rounded-full bg-white text-navy shadow-[0_6px_20px_rgba(15,37,55,.2)] ring-1 ring-black/5 active:scale-90 bottom-[calc(6.25rem+env(safe-area-inset-bottom))] xl:bottom-6" aria-label="Kembali ke atas">
+    {% include 'pcm_web/_ikon.html' with nama='up' kelas='h-5 w-5' %}
+  </button>
+
+  <!-- Tab bar mengambang (mobile & tablet) -->
+  <nav class="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(.6rem,env(safe-area-inset-bottom))] xl:hidden" aria-label="Navigasi bawah">
+    <div class="ios-glass mx-auto grid max-w-md grid-cols-5 gap-1 rounded-[26px] p-1.5 shadow-[0_10px_34px_rgba(15,37,55,.18)] ring-1 ring-white/70">
+      <a href="{% url 'pcm_web:beranda' %}" class="tab flex flex-col items-center gap-0.5 rounded-[20px] py-2 text-[10px] font-semibold" {% if u == 'beranda' %}aria-current="page"{% endif %}>
+        {% include 'pcm_web/_ikon.html' with nama='home' kelas='h-[22px] w-[22px]' %}<span>Beranda</span>
+      </a>
+      <a href="{% url 'pcm_web:daftar_berita' %}" class="tab flex flex-col items-center gap-0.5 rounded-[20px] py-2 text-[10px] font-semibold" {% if u == 'daftar_berita' or u == 'berita' or u == 'detail_berita' or u == 'cari_berita' %}aria-current="page"{% endif %}>
+        {% include 'pcm_web/_ikon.html' with nama='news' kelas='h-[22px] w-[22px]' %}<span>Berita</span>
+      </a>
+      <a href="{% url 'pcm_web:agenda' %}" class="tab flex flex-col items-center gap-0.5 rounded-[20px] py-2 text-[10px] font-semibold" {% if u == 'agenda' %}aria-current="page"{% endif %}>
+        {% include 'pcm_web/_ikon.html' with nama='calendar' kelas='h-[22px] w-[22px]' %}<span>Agenda</span>
+      </a>
+      <a href="{% url 'pcm_web:kontak' %}" class="tab flex flex-col items-center gap-0.5 rounded-[20px] py-2 text-[10px] font-semibold" {% if u == 'kontak' %}aria-current="page"{% endif %}>
+        {% include 'pcm_web/_ikon.html' with nama='mail' kelas='h-[22px] w-[22px]' %}<span>Kontak</span>
+      </a>
+      <button type="button" data-open="sheet" class="tab flex flex-col items-center gap-0.5 rounded-[20px] py-2 text-[10px] font-semibold" aria-haspopup="dialog" aria-controls="menu-sheet">
+        {% include 'pcm_web/_ikon.html' with nama='grid' kelas='h-[22px] w-[22px]' %}<span>Menu</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Bottom sheet: semua menu -->
+  <div id="menu-sheet" class="layer" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true">
+    <div class="layer-bg" data-close></div>
+    <div class="sheet-panel ios-glass absolute inset-x-0 bottom-0 mx-auto max-w-lg rounded-t-[30px] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_50px_rgba(15,37,55,.25)]">
+      <div data-grab class="flex cursor-grab touch-none justify-center py-2.5" aria-hidden="true"><span class="h-1.5 w-10 rounded-full bg-slate-300"></span></div>
+      <div class="mb-4 flex items-center justify-between">
+        <h2 id="sheet-title" class="text-2xl font-extrabold tracking-tight text-navy">Menu</h2>
+        <button type="button" data-close class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900/[.07] text-slate-600 transition active:scale-90" aria-label="Tutup menu">
+          {% include 'pcm_web/_ikon.html' with nama='close' kelas='h-5 w-5' %}
+        </button>
+      </div>
+      <div class="grid grid-cols-3 gap-x-2 gap-y-5 pb-2">
+        <a href="{% url 'pcm_web:beranda' %}" class="tile flex flex-col items-center gap-2 text-center" data-autofocus><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-emerald-50 text-emerald-600 shadow-sm ring-1 ring-emerald-100">{% include 'pcm_web/_ikon.html' with nama='home' %}</span><span class="text-xs font-semibold text-slate-700">Beranda</span></a>
+        <a href="{% url 'pcm_web:profil_pcm' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-sky-50 text-sky-600 shadow-sm ring-1 ring-sky-100">{% include 'pcm_web/_ikon.html' with nama='info' %}</span><span class="text-xs font-semibold text-slate-700">Profil</span></a>
+        <a href="{% url 'pcm_web:pimpinan_pcm' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-indigo-50 text-indigo-600 shadow-sm ring-1 ring-indigo-100">{% include 'pcm_web/_ikon.html' with nama='users' %}</span><span class="text-xs font-semibold text-slate-700">Pimpinan</span></a>
+        <a href="{% url 'pcm_web:amal_usaha' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-amber-50 text-amber-600 shadow-sm ring-1 ring-amber-100">{% include 'pcm_web/_ikon.html' with nama='building' %}</span><span class="text-xs font-semibold text-slate-700">AUM</span></a>
+        <a href="{% url 'pcm_web:ranting' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-rose-50 text-rose-600 shadow-sm ring-1 ring-rose-100">{% include 'pcm_web/_ikon.html' with nama='pin' %}</span><span class="text-xs font-semibold text-slate-700">PRM/PRA</span></a>
+        <a href="{% url 'pcm_web:daftar_berita' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-orange-50 text-orange-600 shadow-sm ring-1 ring-orange-100">{% include 'pcm_web/_ikon.html' with nama='news' %}</span><span class="text-xs font-semibold text-slate-700">Berita</span></a>
+        <a href="{% url 'pcm_web:agenda' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-red-50 text-red-600 shadow-sm ring-1 ring-red-100">{% include 'pcm_web/_ikon.html' with nama='calendar' %}</span><span class="text-xs font-semibold text-slate-700">Agenda</span></a>
+        <a href="{% url 'pcm_web:daftar_unduhan' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-teal-50 text-teal-600 shadow-sm ring-1 ring-teal-100">{% include 'pcm_web/_ikon.html' with nama='download' %}</span><span class="text-xs font-semibold text-slate-700">Unduhan</span></a>
+        <a href="{% url 'pcm_web:kontak' %}" class="tile flex flex-col items-center gap-2 text-center"><span class="tile-ico flex h-14 w-14 items-center justify-center rounded-[18px] bg-violet-50 text-violet-600 shadow-sm ring-1 ring-violet-100">{% include 'pcm_web/_ikon.html' with nama='mail' %}</span><span class="text-xs font-semibold text-slate-700">Kontak</span></a>
+      </div>
+      <button type="button" data-open="spot" class="mt-2 flex w-full items-center gap-3 rounded-2xl bg-slate-900/[.06] px-4 py-3 text-left text-sm text-slate-500 transition active:scale-[.98]">
+        {% include 'pcm_web/_ikon.html' with nama='search' kelas='h-5 w-5' %} Cari berita…
+      </button>
+    </div>
+  </div>
+
+  <!-- Spotlight: pencarian berita -->
+  <div id="spot" class="layer" role="dialog" aria-modal="true" aria-labelledby="spot-title" aria-hidden="true">
+    <div class="layer-bg" data-close></div>
+    <div class="spot-panel ios-glass absolute inset-x-3 top-[max(1rem,env(safe-area-inset-top))] mx-auto mt-[6vh] max-w-xl rounded-[26px] p-3 shadow-[0_30px_80px_rgba(15,37,55,.30)] ring-1 ring-white/70 sm:mt-[10vh]">
+      <h2 id="spot-title" class="sr-only">Cari berita</h2>
+      <form action="{% url 'pcm_web:cari_berita' %}" method="GET" role="search" class="flex items-center gap-2">
+        <div class="flex flex-1 items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-emerald-500/60">
+          {% include 'pcm_web/_ikon.html' with nama='search' kelas='h-5 w-5 text-slate-400' %}
+          <input type="search" name="q" id="spot-input" placeholder="Cari berita…" autocomplete="off" class="w-full border-0 bg-transparent text-[16px] text-slate-800 placeholder-slate-400 focus:outline-none" aria-label="Kata kunci pencarian" data-autofocus>
+        </div>
+        <button type="submit" class="rounded-2xl bg-emerald px-5 py-3 text-sm font-bold text-white shadow-md transition active:scale-95">Cari</button>
+      </form>
+      <div class="mt-3 flex flex-wrap items-center gap-2 px-1 pb-1 text-xs">
+        <span class="font-semibold text-slate-400">Pintasan</span>
+        <a href="{% url 'pcm_web:daftar_berita' %}" class="rounded-full bg-white px-3 py-1.5 font-semibold text-slate-600 ring-1 ring-black/5 transition hover:text-emerald-700 active:scale-95">Berita</a>
+        <a href="{% url 'pcm_web:agenda' %}" class="rounded-full bg-white px-3 py-1.5 font-semibold text-slate-600 ring-1 ring-black/5 transition hover:text-emerald-700 active:scale-95">Agenda</a>
+        <a href="{% url 'pcm_web:daftar_unduhan' %}" class="rounded-full bg-white px-3 py-1.5 font-semibold text-slate-600 ring-1 ring-black/5 transition hover:text-emerald-700 active:scale-95">Unduhan</a>
+        <button type="button" data-close class="ml-auto rounded-full px-3 py-1.5 font-semibold text-slate-400 transition hover:text-slate-600">Esc</button>
+      </div>
+    </div>
+  </div>
+
+{% endwith %}
+
   <script>
-    function updateClock(){
-      const now=new Date();
-      const parts=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
-      document.getElementById('realtime-clock').textContent=parts+' WIB';
-    }
-    updateClock();
-    setInterval(updateClock,1000);
-    const navToggle=document.getElementById('nav-toggle'),mainNav=document.getElementById('main-nav');
-    navToggle.addEventListener('click',()=>{
-      const open=navToggle.getAttribute('aria-expanded')==='true';
-      navToggle.setAttribute('aria-expanded',String(!open));
-      mainNav.classList.toggle('hidden',open);
-      mainNav.classList.toggle('flex',!open);
-    });
+    (function () {
+      var root = document.documentElement;
+      var $ = function (s, c) { return (c || document).querySelector(s); };
+      var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ---------- Jam real-time (WIB) ---------- */
+      var clock = $('#realtime-clock');
+      function updateClock() {
+        if (!clock) return;
+        var parts = new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date());
+        clock.textContent = parts.replace(/\./g, ':') + ' WIB';
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      /* ---------- Header: bayangan saat scroll + progress baca + tombol ke atas ---------- */
+      var header = $('#site-header'), bar = $('#scroll-progress'), toTop = $('#to-top'), ticking = false;
+      function onScroll() {
+        var y = window.scrollY || 0;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        header.classList.toggle('scrolled', y > 8);
+        bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0) + ')';
+        toTop.classList.toggle('hide', y < 600);
+        ticking = false;
+      }
+      window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+      onScroll();
+      toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+
+      /* ---------- Segmented nav: indikator geser mengikuti hover/aktif ---------- */
+      var seg = $('#seg-nav'), pill = $('#nav-pill');
+      if (seg && pill) {
+        var links = $$('a', seg), current = $('[aria-current]', seg);
+        var place = function (a, animate) {
+          if (!a) { pill.style.opacity = 0; return; }
+          pill.classList.toggle('no-anim', !animate);
+          pill.style.opacity = 1;
+          pill.style.width = a.offsetWidth + 'px';
+          pill.style.transform = 'translateX(' + a.offsetLeft + 'px)';
+        };
+        var init = function () { place(current, false); requestAnimationFrame(function () { pill.classList.remove('no-anim'); }); };
+        init();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(init);
+        window.addEventListener('resize', init);
+        links.forEach(function (a) { a.addEventListener('mouseenter', function () { place(a, true); }); a.addEventListener('focus', function () { place(a, true); }); });
+        seg.addEventListener('mouseleave', function () { place(current, true); });
+        seg.addEventListener('focusout', function () { place(current, true); });
+      }
+
+      /* ---------- Lapisan (bottom sheet & Spotlight) ---------- */
+      var lastFocus = null, openLayerEl = null;
+      function openLayer(el) {
+        if (!el) return;
+        if (openLayerEl && openLayerEl !== el) closeLayer(openLayerEl, true);
+        lastFocus = lastFocus || document.activeElement;
+        el.classList.add('open');
+        el.setAttribute('aria-hidden', 'false');
+        root.classList.add('lock');
+        openLayerEl = el;
+        if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
+        setTimeout(function () { var f = $('[data-autofocus]', el) || $('a,button,input', el); if (f) f.focus({ preventScroll: true }); }, 80);
+      }
+      function closeLayer(el, keepFocus) {
+        el.classList.remove('open');
+        el.setAttribute('aria-hidden', 'true');
+        var panel = $('.sheet-panel', el); if (panel) { panel.style.transition = ''; panel.style.transform = ''; }
+        if (openLayerEl === el) { openLayerEl = null; root.classList.remove('lock'); }
+        if (!keepFocus && lastFocus && lastFocus.focus) { lastFocus.focus({ preventScroll: true }); }
+        if (!keepFocus) lastFocus = null;
+      }
+      document.addEventListener('click', function (e) {
+        var op = e.target.closest('[data-open]');
+        if (op) { e.preventDefault(); openLayer(document.getElementById(op.dataset.open === 'sheet' ? 'menu-sheet' : 'spot')); return; }
+        var cl = e.target.closest('[data-close]');
+        if (cl) { var layer = cl.closest('.layer'); if (layer) closeLayer(layer); return; }
+        var inLayerLink = e.target.closest('.layer a[href]');
+        if (inLayerLink && openLayerEl) closeLayer(openLayerEl, true);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && openLayerEl) { closeLayer(openLayerEl); return; }
+        var tag = (document.activeElement && document.activeElement.tagName) || '';
+        var typing = /INPUT|TEXTAREA|SELECT/.test(tag) || (document.activeElement && document.activeElement.isContentEditable);
+        if ((e.key === '/' && !typing) || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); openLayer($('#spot')); }
+      });
+      // Geser ke bawah untuk menutup bottom sheet
+      var sheetEl = $('#menu-sheet'), panelEl = $('.sheet-panel', sheetEl), startY = null, dy = 0;
+      var grab = $('[data-grab]', sheetEl);
+      if (grab && panelEl) {
+        grab.addEventListener('touchstart', function (e) { startY = e.touches[0].clientY; dy = 0; panelEl.style.transition = 'none'; }, { passive: true });
+        grab.addEventListener('touchmove', function (e) { if (startY === null) return; dy = Math.max(0, e.touches[0].clientY - startY); panelEl.style.transform = 'translateY(' + dy + 'px)'; }, { passive: true });
+        grab.addEventListener('touchend', function () {
+          if (startY === null) return; startY = null; panelEl.style.transition = '';
+          if (dy > 90) closeLayer(sheetEl); else panelEl.style.transform = '';
+        });
+      }
+
+      /* ---------- Jadwal shalat: sorot waktu berikutnya + hitung mundur ---------- */
+      var items = $$('#prayer-row .prayer'), cd = $('#prayer-countdown');
+      if (items.length) {
+        var toMin = function (t) { var m = /(\d{1,2}):(\d{2})/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+        var wibNow = function () {
+          var p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+          var g = function (t) { return +p.filter(function (x) { return x.type === t; })[0].value; };
+          return g('hour') * 3600 + g('minute') * 60 + g('second');
+        };
+        var lastNext = null;
+        var tickPrayer = function () {
+          var now = wibNow(), fard = items.filter(function (i) { return i.dataset.fardhu; }), next = null, diff = null;
+          fard.forEach(function (i) { var m = toMin(i.dataset.waktu); if (m === null) return; var d = m * 60 - now; if (d > 0 && (diff === null || d < diff)) { diff = d; next = i; } });
+          if (!next && fard.length) { next = fard[0]; diff = toMin(next.dataset.waktu) * 60 + 86400 - now; }
+          items.forEach(function (i) {
+            var m = toMin(i.dataset.waktu);
+            i.classList.toggle('next', i === next);
+            i.classList.toggle('passed', i !== next && m !== null && m * 60 <= now);
+          });
+          if (next && cd) {
+            var h = Math.floor(diff / 3600), mi = Math.floor((diff % 3600) / 60), s = diff % 60;
+            var pad = function (n) { return String(n).padStart(2, '0'); };
+            cd.textContent = next.dataset.nama + ' dalam ' + pad(h) + ':' + pad(mi) + ':' + pad(s);
+          }
+          if (next && next !== lastNext) {
+            lastNext = next;
+            var row = $('#prayer-row');
+            if (row && row.scrollWidth > row.clientWidth) row.scrollTo({ left: Math.max(0, next.offsetLeft - 12), behavior: reduce ? 'auto' : 'smooth' });
+          }
+        };
+        tickPrayer();
+        setInterval(tickPrayer, 1000);
+      }
+
+      /* ---------- Animasi muncul saat scroll ---------- */
+      if (!reduce && 'IntersectionObserver' in window) {
+        var targets = [];
+        $$('main > *').forEach(function (el) { if (!el.querySelector('.grid > *')) targets.push(el); });
+        $$('main .grid > *').forEach(function (el) { targets.push(el); });
+        var seen = new Set();
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!en.isIntersecting) return;
+            var el = en.target; io.unobserve(el);
+            el.classList.add('reveal-in');
+            el.addEventListener('animationend', function done(ev) {
+              if (ev.target !== el) return;
+              el.classList.remove('reveal', 'reveal-in'); el.style.removeProperty('--d');
+              el.removeEventListener('animationend', done);
+            });
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
+        targets.forEach(function (el) {
+          if (seen.has(el)) return; seen.add(el);
+          var sibs = el.parentElement ? Array.prototype.indexOf.call(el.parentElement.children, el) : 0;
+          el.style.setProperty('--d', Math.min(sibs, 5) * 70 + 'ms');
+          el.classList.add('reveal');
+          io.observe(el);
+        });
+      }
+    })();
   </script>
   {% block scripts %}{% endblock %}
 </body>
