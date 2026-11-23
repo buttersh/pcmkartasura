@@ -435,7 +435,7 @@ class Command(BaseCommand):
                 "Muhammadiyah di Kecamatan Kartasura."
             ),
             "sejarah": (
-                "Tercatat pada urutan nomor 43 sebagai Gr. (Gerombolan) Kartasura (Kartosoero) "
+                "Tercatat pada urutan nomor 43 sebagai Gr. Kartasura "
                 "yang telah berdiri sejak akhir tahun 1927 sebagai cabang pertama di wilayah "
                 "Sukoharjo sebelum pemisahan administrasi kewilayahan dari Surakarta, dan terus "
                 "berkembang hingga memiliki ranting di seluruh 12 kelurahan di Kecamatan "
