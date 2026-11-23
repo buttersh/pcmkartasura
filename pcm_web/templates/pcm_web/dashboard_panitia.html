@@ -1,7 +1,7 @@
 {% extends 'pcm_web/base.html' %}
 {% block title %}Dashboard Panitia · PCM Kartasura{% endblock %}
 {% block content %}
-<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-widest text-emerald">Dashboard</p><h1 class="mt-1 text-3xl font-extrabold text-navy">Progress Kepanitiaan</h1></div><a href="{% url 'beranda' %}" class="text-sm font-semibold text-emerald">← Kembali ke beranda</a></div>
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-widest text-emerald">Dashboard</p><h1 class="mt-1 text-3xl font-extrabold text-navy">Progress Kepanitiaan</h1></div><a href="{% url 'pcm_web:beranda' %}" class="text-sm font-semibold text-emerald">← Kembali ke beranda</a></div>
 <section class="mt-6 rounded-3xl bg-white p-6 sm:p-8 shadow-sm ring-1 ring-slate-100">
   <div class="flex items-end justify-between gap-4"><div><p class="text-sm text-slate-500">Kesiapan keseluruhan</p><p class="mt-1 text-4xl font-extrabold text-navy">{{ persentase_kesiapan }}%</p></div><p class="text-sm text-slate-600">{{ tugas_selesai }} dari {{ total_tugas }} tugas selesai</p></div>
   <div class="mt-5 h-4 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow="{{ persentase_kesiapan }}" aria-valuemin="0" aria-valuemax="100" aria-label="Persentase kesiapan acara"><div class="h-full rounded-full bg-emerald transition-all" style="width: {{ persentase_kesiapan }}%"></div></div>

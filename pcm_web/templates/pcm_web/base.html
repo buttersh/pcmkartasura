@@ -2,13 +2,15 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0F2537">
   <title>{% block title %}PCM Kartasura{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={theme:{extend:{colors:{navy:'#0F2537',cream:'#FAF6F0',emerald:'#059669'}}}}</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -26,52 +28,177 @@
   </style>
 </head>
 <body class="min-h-screen bg-cream text-slate-800 flex flex-col">
-  <div class="bg-navy text-slate-200 text-xs sm:text-sm"><div class="mx-auto max-w-7xl px-4 py-2 flex justify-between gap-3">
-    <span>KHGT (Kalender Hijriah Global Tunggal)</span><span id="realtime-clock" aria-live="off">--:--:-- WIB</span>
-  </div></div>
-  <header class="bg-navy text-white shadow-lg">
-    <nav class="mx-auto max-w-7xl px-4 py-4 flex flex-wrap items-center justify-between gap-4" aria-label="Navigasi utama">
-      <a href="{% url 'beranda' %}" class="text-lg font-extrabold tracking-wide text-white">PCM KARTASURA</a>
-      <button id="nav-toggle" class="md:hidden rounded-lg border border-white/30 px-3 py-2" aria-expanded="false" aria-controls="main-nav">Menu</button>
+  <!-- Bar Waktu & Kalender -->
+  <div class="bg-[#0b1b28] text-slate-300 text-xs sm:text-sm border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-2 flex flex-wrap justify-between items-center gap-2">
+      <span class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald"></span>
+        KHGT (Kalender Hijriah Global Tunggal)
+      </span>
+      <span id="realtime-clock" class="font-mono text-emerald-300" aria-live="off">--:--:-- WIB</span>
+    </div>
+  </div>
+
+  <!-- Header Navigasi -->
+  <header class="bg-navy text-white shadow-lg sticky top-0 z-40">
+    <nav class="mx-auto max-w-7xl px-4 py-3 flex flex-wrap items-center justify-between gap-4" aria-label="Navigasi utama">
+      <a href="{% url 'pcm_web:beranda' %}" class="flex items-center gap-3 text-white">
+        <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 object-contain">
+        <div class="flex flex-col">
+          <span class="text-base sm:text-lg font-extrabold tracking-wide uppercase leading-tight text-white">{{ profil.nama_singkat|default:"PCM KARTASURA" }}</span>
+          <span class="text-[11px] text-emerald-300 font-medium">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</span>
+        </div>
+      </a>
+
+      <button id="nav-toggle" class="md:hidden rounded-lg border border-white/30 px-3 py-2 text-sm" aria-expanded="false" aria-controls="main-nav">Menu</button>
+
       <div id="main-nav" class="hidden md:flex w-full md:w-auto flex-col md:flex-row md:items-center gap-2 md:gap-5 text-sm font-medium">
-        <a href="{% url 'beranda' %}" class="text-white hover:text-emerald-300">Beranda</a>
-        <a href="{% url 'profil_pcm' %}" class="text-white hover:text-emerald-300">Profil</a>
+        <a href="{% url 'pcm_web:beranda' %}" class="text-white hover:text-emerald-300 transition py-1">Beranda</a>
+        <a href="{% url 'pcm_web:profil_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Profil</a>
+        <a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Pimpinan</a>
+        
+        <!-- Dropdown AUM -->
         <div class="relative group">
-          <a href="{% url 'amal_usaha' %}" class="inline-flex items-center gap-1 text-white hover:text-emerald-300">
+          <a href="{% url 'pcm_web:amal_usaha' %}" class="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition py-1">
             AUM <span class="text-xs">&#9662;</span>
           </a>
-          <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 focus-within:visible focus-within:opacity-100 transition-all duration-200 md:absolute left-0 top-full pt-2 z-50 min-w-[230px]">
-            <ul class="bg-white text-slate-800 rounded-xl shadow-lg border border-slate-100 py-2 list-unstyled mb-0">
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=klinik">Klinik &amp; Balai Pengobatan</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=lazismu">LazisMu</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=masjid">Masjid / Musholla</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=panti-asuhan">Panti Asuhan</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=pondok-pesantren">Pondok Pesantren</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=rumah-sakit">Rumah Sakit</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=sekolah">Sekolah / Madrasah</a></li>
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'amal_usaha' %}?kategori=toko">Toko</a></li>
+          <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 focus-within:visible focus-within:opacity-100 transition-all duration-200 md:absolute left-0 top-full pt-2 z-50 min-w-[240px]">
+            <ul class="bg-white text-slate-800 rounded-xl shadow-xl border border-slate-100 py-2 list-unstyled mb-0">
+              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700 font-semibold" href="{% url 'pcm_web:amal_usaha' %}">Semua AUM (70+)</a></li>
+              <li class="border-t border-slate-100 my-1"></li>
+              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=pendidikan">Pendidikan / Sekolah</a></li>
+              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=kesehatan">Kesehatan &amp; PKU</a></li>
+              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=sosial">Sosial &amp; Panti Asuhan</a></li>
+              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=ekonomi">Ekonomi &amp; LazisMu</a></li>
             </ul>
           </div>
         </div>
-        <a href="{% url 'ranting' %}" class="text-white hover:text-emerald-300">PRM/PRA</a>
-        <a href="{% url 'profil_pcm' %}#organisasi" class="text-white hover:text-emerald-300">Organisasi</a>
-        <a href="{% url 'cari_berita' %}" class="text-white hover:text-emerald-300">Informasi</a>
-        <a href="{% url 'agenda' %}" class="text-white hover:text-emerald-300">Agenda</a>
-        <a href="{% url 'kontak' %}" class="text-white hover:text-emerald-300">Kontak</a>
+
+        <a href="{% url 'pcm_web:ranting' %}" class="text-white hover:text-emerald-300 transition py-1">Ranting (12)</a>
+        <a href="{% url 'pcm_web:daftar_berita' %}" class="text-white hover:text-emerald-300 transition py-1">Berita</a>
+        <a href="{% url 'pcm_web:agenda' %}" class="text-white hover:text-emerald-300 transition py-1">Agenda</a>
+        <a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-white hover:text-emerald-300 transition py-1">Unduhan SK</a>
+        <a href="{% url 'pcm_web:kontak' %}" class="text-white hover:text-emerald-300 transition py-1">Kontak</a>
+
+        <!-- Form Pencarian Header -->
+        <form action="{% url 'pcm_web:cari_berita' %}" method="GET" class="flex items-center gap-1 md:ml-2">
+          <input type="text" name="q" placeholder="Cari..." class="rounded-lg bg-white/10 border border-white/20 px-2.5 py-1 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 w-28 sm:w-36">
+          <button type="submit" class="rounded-lg bg-emerald px-2 py-1 text-xs text-white hover:bg-emerald-600 transition">🔍</button>
+        </form>
       </div>
     </nav>
   </header>
-  {% if jadwal_shalat %}<section class="bg-emerald text-white" aria-label="Jadwal shalat"><div class="mx-auto max-w-7xl px-4 py-3 flex flex-wrap justify-center sm:justify-between items-center gap-x-5 gap-y-2 text-xs sm:text-sm">
-    <strong class="text-emerald-100">Jadwal Shalat{% if jadwal_shalat.tanggal %} · {{ jadwal_shalat.tanggal }}{% endif %}</strong>
-    <span>Imsak <b>{{ jadwal_shalat.imsak }}</b></span><span>Subuh <b>{{ jadwal_shalat.subuh }}</b></span><span>Terbit <b>{{ jadwal_shalat.terbit }}</b></span><span>Dzuhur <b>{{ jadwal_shalat.dzuhur }}</b></span><span>Ashar <b>{{ jadwal_shalat.ashar }}</b></span><span>Maghrib <b>{{ jadwal_shalat.maghrib }}</b></span><span>Isya <b>{{ jadwal_shalat.isya }}</b></span>
-  </div></section>{% endif %}
-  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:py-10">{% block content %}{% endblock %}</main>
-  <footer class="bg-navy text-slate-200 mt-10"><div class="mx-auto max-w-7xl px-4 py-7 flex flex-col sm:flex-row justify-between gap-3 text-sm"><strong>PCM Kartasura</strong><span>Dakwah Islam berkemajuan untuk masyarakat.</span></div></footer>
+
+  <!-- Bar Jadwal Shalat Real-time API -->
+  {% if jadwal_shalat %}
+  <section class="bg-emerald text-white shadow-inner" aria-label="Jadwal shalat">
+    <div class="mx-auto max-w-7xl px-4 py-2 flex flex-wrap justify-center sm:justify-between items-center gap-x-5 gap-y-1 text-xs">
+      <strong class="text-emerald-100 flex items-center gap-1">
+        <span>🕌</span> Jadwal Shalat Kartasura/Surakarta{% if jadwal_shalat.tanggal %} · {{ jadwal_shalat.tanggal }}{% endif %}
+      </strong>
+      <div class="flex flex-wrap justify-center gap-x-3 gap-y-1">
+        <span>Imsak <b>{{ jadwal_shalat.imsak }}</b></span>
+        <span>Subuh <b>{{ jadwal_shalat.subuh }}</b></span>
+        <span>Terbit <b>{{ jadwal_shalat.terbit }}</b></span>
+        <span>Dzuhur <b>{{ jadwal_shalat.dzuhur }}</b></span>
+        <span>Ashar <b>{{ jadwal_shalat.ashar }}</b></span>
+        <span>Maghrib <b>{{ jadwal_shalat.maghrib }}</b></span>
+        <span>Isya <b>{{ jadwal_shalat.isya }}</b></span>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Konten Utama -->
+  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:py-10">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer Lengkap Sesuai Ketentuan Tugas -->
+  <footer class="bg-navy text-slate-300 mt-16 border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-12">
+      <div class="grid gap-8 md:grid-cols-4">
+        <!-- Kolom Profil -->
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 object-contain">
+            <div>
+              <h3 class="text-lg font-bold text-white">{{ profil.nama|default:"Pimpinan Cabang Muhammadiyah Kartasura" }}</h3>
+              <p class="text-xs text-emerald-400 font-medium">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</p>
+            </div>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            {{ profil.tentang|default:"Pimpinan Cabang Muhammadiyah Kartasura adalah organisasi tingkat cabang di bawah Pimpinan Daerah Muhammadiyah Kabupaten Sukoharjo yang menggerakkan dakwah Islam amar ma'ruf nahi munkar serta mengelola berbagai Amal Usaha Muhammadiyah di Kecamatan Kartasura." }}
+          </p>
+          <div class="text-xs text-slate-400 space-y-1">
+            <p><strong class="text-slate-200">Sekretariat:</strong> {{ profil.alamat_sekretariat|default:"Jl. Slamet Riyadi No. 270B, Sidokerto, Dusun III, Gumpang, Kec. Kartasura, Kabupaten Sukoharjo, Jawa Tengah 57169" }}</p>
+            <p><strong class="text-slate-200">Telepon:</strong> {{ profil.telepon|default:"08121547207" }} | <strong class="text-slate-200">Email:</strong> {{ profil.email|default:"pcmkartasura@gmail.com" }}</p>
+          </div>
+        </div>
+
+        <!-- Kolom Navigasi Cepat -->
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Menu Utama</h4>
+          <ul class="space-y-2 text-sm list-unstyled">
+            <li><a href="{% url 'pcm_web:beranda' %}" class="text-slate-300 hover:text-emerald-300 transition">Beranda</a></li>
+            <li><a href="{% url 'pcm_web:profil_pcm' %}" class="text-slate-300 hover:text-emerald-300 transition">Profil &amp; Sejarah</a></li>
+            <li><a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-slate-300 hover:text-emerald-300 transition">Struktur Pimpinan</a></li>
+            <li><a href="{% url 'pcm_web:amal_usaha' %}" class="text-slate-300 hover:text-emerald-300 transition">Amal Usaha (AUM)</a></li>
+            <li><a href="{% url 'pcm_web:ranting' %}" class="text-slate-300 hover:text-emerald-300 transition">Daftar Ranting (PRM)</a></li>
+            <li><a href="{% url 'pcm_web:daftar_berita' %}" class="text-slate-300 hover:text-emerald-300 transition">Berita Terkini</a></li>
+            <li><a href="{% url 'pcm_web:agenda' %}" class="text-slate-300 hover:text-emerald-300 transition">Agenda Kegiatan</a></li>
+            <li><a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-slate-300 hover:text-emerald-300 transition">Unduhan Dokumen SK</a></li>
+            <li><a href="{% url 'pcm_web:kontak' %}" class="text-slate-300 hover:text-emerald-300 transition">Kontak Sekretariat</a></li>
+          </ul>
+        </div>
+
+        <!-- Kolom Tautan Persyarikatan (Rubrik Wajib) -->
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Tautan Persyarikatan</h4>
+          <ul class="space-y-2 text-sm list-unstyled">
+            {% if tautan_terkait %}
+              {% for tautan in tautan_terkait %}
+                <li><a href="{{ tautan.url }}" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> {{ tautan.nama }}</a></li>
+              {% endfor %}
+            {% else %}
+              <li><a href="https://muhammadiyah.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PP Muhammadiyah</a></li>
+              <li><a href="https://jateng.muhammadiyah.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PWM Jawa Tengah</a></li>
+              <li><a href="https://pdmsukoharjo.or.id" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-300 transition flex items-center gap-1.5"><span>↗</span> PDM Sukoharjo</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Garis Pemisah & Keterangan Tugas Kuliah Wajib -->
+      <div class="mt-10 pt-6 border-t border-white/10 text-xs text-slate-400 space-y-2 text-center sm:text-left">
+        <p class="font-medium text-slate-300">
+          ⚠️ <em>Website ini dibuat untuk tugas kuliah Pemrograman Web berbasis Framework (TIF1336), bukan website resmi PCM Kartasura.</em>
+        </p>
+        <p>
+          Logo Muhammadiyah: K. H. Siradj Dahlan, vektor oleh Hibensis, via Wikimedia Commons, lisensi CC BY-SA 4.0.
+        </p>
+        <p>
+          Data profil, struktur pengurus, pimpinan ranting, dan dokumen SK bersumber dari SK Resmi PCM/PDM atas izin Drs. Abdul Fatah Bintoro (Sekretaris PCM Kartasura). Berita disinkronisasi dari portal resmi PDM Sukoharjo.
+        </p>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    function updateClock(){const now=new Date();const parts=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);document.getElementById('realtime-clock').textContent=parts+' WIB'}
-    updateClock();setInterval(updateClock,1000);
+    function updateClock(){
+      const now=new Date();
+      const parts=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
+      document.getElementById('realtime-clock').textContent=parts+' WIB';
+    }
+    updateClock();
+    setInterval(updateClock,1000);
     const navToggle=document.getElementById('nav-toggle'),mainNav=document.getElementById('main-nav');
-    navToggle.addEventListener('click',()=>{const open=navToggle.getAttribute('aria-expanded')==='true';navToggle.setAttribute('aria-expanded',String(!open));mainNav.classList.toggle('hidden',open);mainNav.classList.toggle('flex',!open)});
+    navToggle.addEventListener('click',()=>{
+      const open=navToggle.getAttribute('aria-expanded')==='true';
+      navToggle.setAttribute('aria-expanded',String(!open));
+      mainNav.classList.toggle('hidden',open);
+      mainNav.classList.toggle('flex',!open);
+    });
   </script>
   {% block scripts %}{% endblock %}
 </body>

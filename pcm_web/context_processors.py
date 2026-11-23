@@ -1,7 +1,16 @@
 import requests
+from .models import ProfilOrganisasi, TautanTerkait
+
+def profil_dan_tautan(request):
+    profil = ProfilOrganisasi.objects.first()
+    tautan_terkait = TautanTerkait.objects.all().order_by('urutan')
+    return {
+        'profil_organisasi': profil,
+        'profil': profil,
+        'tautan_terkait': tautan_terkait,
+    }
 
 def jadwal_shalat(request):
-    # URL API Aladhan (Metode Muhammadiyah)
     url = "https://api.aladhan.com/v1/timingsByCity?city=Surakarta&country=Indonesia&method=99&methodSettings=18,null,18"
     
     jadwal = None
@@ -11,9 +20,6 @@ def jadwal_shalat(request):
             data = response.json()
             if data.get('code') == 200:
                 timings = data['data']['timings']
-                
-                # Kita ubah/mapping bahasa Inggris ke bahasa Indonesia
-                # agar sesuai dengan variabel di base.html
                 jadwal = {
                     'tanggal': data['data']['date']['readable'],
                     'imsak': timings['Imsak'],
@@ -25,6 +31,6 @@ def jadwal_shalat(request):
                     'isya': timings['Isha']
                 }
     except requests.RequestException:
-        pass # Jika internet mati/API down, abaikan agar web tidak error
+        pass
         
     return {'jadwal_shalat': jadwal}

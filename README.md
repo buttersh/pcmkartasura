@@ -1,9 +1,136 @@
-# Sumber Data Berita
+# Website Resmi PCM Kartasura (Tugas Pemrograman Web berbasis Framework)
 
-Berita berikut diambil dari hasil pencarian Kartasura di situs PDM Kabupaten
-Sukoharjo pada **16 November 2026**.
+Repositori ini berisi kode sumber pembangunan dan implementasi website **Pimpinan Cabang Muhammadiyah (PCM) Kartasura, Kabupaten Sukoharjo** menggunakan **Django 6.x**, **uv**, **PostgreSQL**, dan **Docker**.
 
-| Judul Berita | URL sumber | Tanggal diambil |
+Website ini dikembangkan dengan data riil untuk memperkenalkan PCM Kartasura, struktur pimpinan, daftar 12 ranting (PRM), amal usaha (AUM), menyajikan berita dan agenda kegiatan, menyediakan dokumen Surat Keputusan (SK) resmi untuk diunduh, serta menerima pesan dari masyarakat.
+
+---
+
+## 📌 Fitur Utama Website (Bagian A)
+
+1. **Beranda (`/`)**:
+   - Hero banner interaktif dengan nama, tagline, dan foto pimpinan PCM Kartasura.
+   - Kartu statistik riil: Jumlah Ranting (12 PRM), Jumlah AUM (70+), dan Jumlah Anggota ber-KTAM (364).
+   - 3 Berita terbaru terbit dan 3 Agenda mendatang.
+2. **Profil Organisasi (`/profil/`)**:
+   - Profil lengkap, sejarah pendirian PCM Kartasura sejak 1927, visi, serta misi (ditampilkan rapi bernomor).
+   - Informasi kontak resmi sekretariat PCM Kartasura.
+3. **Pimpinan PCM (`/pimpinan/`)**:
+   - Struktur 9 Pimpinan Harian PCM Kartasura Periode 2022–2027 lengkap dengan foto, jabatan, dan urutan resmi.
+4. **Daftar Ranting (`/ranting/`)**:
+   - Direktori 12 Pimpinan Ranting Muhammadiyah (PRM) se-Kecamatan Kartasura beserta nama ketua dan alamat.
+5. **Amal Usaha Muhammadiyah (`/amal-usaha/`)**:
+   - Direktori AUM yang dikelompokkan berdasarkan bidang (Pendidikan, Kesehatan, Sosial, Ekonomi) dengan fitur filter interaktif.
+6. **Berita Terkini (`/berita/` & `/berita/<slug>/`)**:
+   - Daftar berita terbit dengan paginasi **6 berita per halaman**.
+   - Halaman detail berita dengan pemisahan ringkasan, isi, dan sumber asli berita, serta rekomendasi 3 berita lainnya.
+   - Proteksi otomatis (HTTP 404) untuk berita berstatus draf atau bertanggal di masa depan.
+7. **Agenda Kegiatan (`/agenda/`)**:
+   - Pemisahan jelas antara agenda mendatang dan agenda yang sudah terlaksana.
+8. **Unduhan Dokumen SK (`/unduhan/`)**:
+   - Pengelompokan dokumen SK Tingkat Cabang (PDM Sukoharjo) dan SK Pimpinan Ranting (PRM) Periode 2022–2027.
+   - Tombol pratinjau dokumen dan unduh berkas PDF.
+9. **Kontak Sekretariat (`/kontak/`)**:
+   - Formulir pesan masyarakat berbasis `ModelForm` dengan validasi lengkap dan notifikasi sukses (`messages` framework).
+10. **Pencarian Informasi (`/cari/`)**:
+    - Pencarian cepat berita dan informasi persyarikatan berdasarkan kata kunci.
+11. **Panel Admin Django**:
+    - Kustomisasi header admin: *"Admin Website PCM Kartasura"*.
+    - Pembatasan Profil Organisasi (maksimal 1 baris, tidak dapat dihapus).
+    - Berita dengan `prepopulated_fields` slug dan `date_hierarchy`.
+    - Pesan masuk bersifat baca-saja (*read-only*) untuk menjaga integritas pesan masyarakat.
+12. **Konsep Teknis Django**:
+    - Penggunaan `app_name = 'pcm_web'` (namespacing URL) dan `{% url %}` pada seluruh template.
+    - Context processor `profil_dan_tautan` yang menyediakan data profil dan tautan persyarikatan ke seluruh template secara otomatis.
+    - Context processor `jadwal_shalat` terintegrasi API Aladhan (Surakarta) secara real-time.
+    - `seed_pcm` management command untuk mengisi seluruh data riil PCM Kartasura dalam sekali eksekusi.
+
+---
+
+## 🚀 Panduan Menjalankan di Komputer Lokal
+
+### Prasyarat
+- Python >= 3.13
+- [uv](https://docs.astral.sh/uv/) (manajer paket Python super cepat)
+
+### Langkah Menjalankan
+1. **Clone repositori**:
+   ```bash
+   git clone https://github.com/buttersh/pcmkartasura.git
+   cd pcmkartasura
+   ```
+
+2. **Buat file `.env`**:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Install dependensi & jalankan migrasi database**:
+   ```bash
+   uv sync
+   uv run python manage.py migrate
+   ```
+
+4. **Isi data awal riil PCM Kartasura (`seed_pcm`)**:
+   ```bash
+   uv run python manage.py seed_pcm
+   ```
+
+5. **Jalankan server pengembangan**:
+   ```bash
+   uv run python manage.py runserver
+   ```
+   Buka browser di: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+6. **Menjalankan Pengujian Unit (Testing)**:
+   ```bash
+   uv run python manage.py test
+   ```
+
+---
+
+## 🐳 Menjalankan dengan Docker & PostgreSQL (Bagian B)
+
+Seluruh konfigurasi kontainer telah disiapkan sehingga siapa pun dapat menjalankan website lengkap beserta database PostgreSQL hanya dengan **satu perintah**:
+
+```bash
+docker compose up --build
+```
+Buka browser di: [http://localhost:8000](http://localhost:8000)
+
+### Arsitektur Docker:
+- **`db`**: Image `postgres:17-alpine` dengan penyimpanan persisten pada named volume `postgres_data` dan pemeriksaan kesiapan (`healthcheck: pg_isready`).
+- **`web`**: Dibangun secara otomatis dari `Dockerfile` berbasis `python:3.13-slim` dengan manajer dependensi `uv`, menjalankan `collectstatic` saat build, user keamanan non-root (`appuser`), menunggu service database sehat, menjalankan migrasi database otomatis, dan menyajikan aplikasi via server WSGI **Gunicorn** dengan port dari variabel `PORT` (default: 8000).
+- **Penyimpanan Media Persisten**: Menggunakan named volume `media_data` agar seluruh file dokumen SK dan gambar yang diunggah tetap aman meskipun kontainer direstart.
+- **Pembersihan Data Volume**: Menjalankan `docker compose down -v` akan menghapus seluruh data volume database dan media untuk reset total ke kondisi awal.
+
+---
+
+## ☁️ Deployment ke Cloud (Bagian C)
+
+Website ini siap dideploy ke platform cloud modern seperti **Railway** atau **Render**:
+1. Gunakan file `Dockerfile` yang telah disediakan.
+2. Tambahkan database PostgreSQL cloud (misalnya Supabase atau Neon).
+3. Set environment variable pada dashboard cloud:
+   - `SECRET_KEY`: string acak aman untuk produksi.
+   - `DEBUG`: `False`
+   - `ALLOWED_HOSTS`: domain aplikasi Anda (misal `pcm-kartasura.up.railway.app`).
+   - `CSRF_TRUSTED_ORIGINS`: `https://pcm-kartasura.up.railway.app`
+   - `DATABASE_URL`: URL koneksi PostgreSQL cloud dari Supabase/Neon/Railway.
+4. Static files disajikan secara optimal dengan kompresi gzip/brotli menggunakan **WhiteNoise**.
+
+---
+
+## 📄 Sumber Data Riil dan Bukti Izin (Bagian D)
+
+Semua data pimpinan, ranting, dan dokumen SK diperoleh dan digunakan atas izin resmi pengurus:
+
+> **Catatan Izin:** Penggunaan data susunan pengurus dan dokumen SK resmi ini telah disetujui oleh **Drs. Abdul Fatah Bintoro, M.Pd.** (Sekretaris PCM Kartasura).  
+> **Atribusi Logo:** Logo Muhammadiyah karya K. H. Siradj Dahlan, vektor oleh Hibensis, via Wikimedia Commons, lisensi CC BY-SA 4.0.
+
+### Tabel Sumber Berita PDM Sukoharjo
+
+| Judul Berita | URL Sumber | Tanggal Diambil |
 | --- | --- | --- |
 | Tingkatkan Perlindungan Perempuan dan Anak, Tim P2M UMS bersama PRM & PRA Jombor Gelar Workshop Inisiasi Tim P3AK | [pdmsukoharjo.or.id](https://pdmsukoharjo.or.id/tingkatkan-perlindungan-perempuan-dan-anak-tim-p2m-ums-bersama-prm-pra-jombor-gelar-workshop-inisiasi-tim-p3ak/) | 16 November 2026 |
 | SMP Ahmad Dahlan Juara Umum Pandu Pengenal Hizbul Wathan Tingkat Kabupaten Sukoharjo 2026 | [pdmsukoharjo.or.id](https://pdmsukoharjo.or.id/smp-ahmad-dahlan-juara-umum-pandu-pengenal-hizbul-wathan-tingkat-kabupaten-sukoharjo-2026/) | 16 November 2026 |
@@ -26,9 +153,9 @@ Sukoharjo pada **16 November 2026**.
 | MPKU PDM Sukoharjo Gelar Rapat Kerja Bahas Rencana Strategis 2025-2029 | [pdmsukoharjo.or.id](https://pdmsukoharjo.or.id/mpku-pdm-sukoharjo-gelar-rapat-kerja-bahas-rencana-strategis-2025-2029/) | 16 November 2026 |
 | 500 Warga Persyarikatan Muhammadiyah Ranting Gonilan memperingati Milad Muhammadiyah ke-112 | [pdmsukoharjo.or.id](https://pdmsukoharjo.or.id/500-warga-persyarikatan-muhammadiyah-ranting-gonilan-memperingati-milad-muhammadiyah-ke-112/) | 16 November 2026 |
 
-## Sumber Data Surat Keputusan
+### Tabel Sumber Dokumen Surat Keputusan (SK)
 
-| Data | Sumber | Tanggal Diambil |
+| Data Dokumen | Tautan Berkas SK Resmi | Tanggal Diambil |
 | --- | --- | --- |
 | SK PDM Sukoharjo Susunan PCM Kartasura 2022–2027 | [Google Drive](https://drive.google.com/file/d/1QjrnkfpO9rEN-XJ3BMWvmjcHD-SI1N3_/view?usp=drive_link) | 16 November 2026 |
 | SK PCM Kartasura Susunan PRM Ngemplak 2022–2027 | [Google Drive](https://drive.google.com/file/d/1y7xbeBTXtC-K-FVkucduWEyfWM_oEf_b/view?usp=drive_link) | 16 November 2026 |
@@ -43,5 +170,3 @@ Sukoharjo pada **16 November 2026**.
 | SK PCM Kartasura Susunan PRM Kartasura 2022–2027 | [Google Drive](https://drive.google.com/file/d/1q5XqVhhDxyqt1xyDlfNXTTSLMsWqwijo/view?usp=drive_link) | 16 November 2026 |
 | SK PCM Kartasura Susunan PRM Gonilan 2022–2027 | [Google Drive](https://drive.google.com/file/d/1BoU70gewqgQrGXH6LMmvUT10Y_4fXNMd/view?usp=drive_link) | 16 November 2026 |
 | SK PCM Kartasura Susunan PRM Singopuran 2022–2027 | [Google Drive](https://drive.google.com/file/d/1duR7aLQcqgKtuq4gXI46ZQKzbtor0DJN/view?usp=drive_link) | 16 November 2026 |
-
-Catatan: Penggunaan dokumen ini atas izin Drs. Abdul Fatah Bintoro, Sekretaris PCM Kartasura.
