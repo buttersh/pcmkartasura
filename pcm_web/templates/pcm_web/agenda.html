@@ -27,7 +27,6 @@
             <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; background-color: white; text-align: center; margin: 0 auto;">
                 <thead style="background-color: #000080; color: white;">
                     <tr>
-                        <!-- Kunci lebar kolom pakai persentase -->
                         <th style="text-align: center; width: 5%;">No</th>
                         <th style="text-align: center; width: 25%;">Nama Kegiatan</th>
                         <th style="text-align: center; width: 15%;">Waktu Mulai</th>
@@ -36,15 +35,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in agenda_mendatang %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td style="text-align: left;">{{ item.nama_kegiatan }}</td>
-                        <td>{{ item.waktu_mulai|date:"d M Y, H:i" }}</td>
-                        <td>{{ item.tempat }}</td>
-                        <td style="text-align: left;">{{ item.keterangan }}</td>
-                    </tr>
-                    {% empty %}
                     <tr>
                         <td>1</td>
                         <td style="text-align: left;">Rapat rutin PCM</td>
@@ -59,7 +49,6 @@
                         <td>PCM Kartasura</td>
                         <td style="text-align: left;">Rapat rutin mingguan Dikdasmen</td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -72,7 +61,6 @@
             <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; background-color: white; text-align: center; margin: 0 auto;">
                 <thead style="background-color: #555; color: white;">
                     <tr>
-                        <!-- Persentase di sini disamakan persis dengan tabel di atas -->
                         <th style="text-align: center; width: 5%;">No</th>
                         <th style="text-align: center; width: 25%;">Nama Kegiatan</th>
                         <th style="text-align: center; width: 15%;">Waktu Pelaksanaan</th>
@@ -81,15 +69,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in agenda_selesai %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td style="text-align: left;">{{ item.nama_kegiatan }}</td>
-                        <td>{{ item.waktu_mulai|date:"d M Y, H:i" }}</td>
-                        <td>{{ item.tempat }}</td>
-                        <td style="text-align: left;">{{ item.keterangan }}</td>
-                    </tr>
-                    {% empty %}
                     <tr>
                         <td>1</td>
                         <td style="text-align: left;">Pengajian PCM Kartasura Ahad Kliwon</td>
@@ -132,7 +111,6 @@
                         <td>Komplek Perguruan Muhammadiyah Standart, Kartasura</td>
                         <td style="text-align: left;">Pengajian bulanan Ahad Kliwon PCM Kartasura.</td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>
         </div>
