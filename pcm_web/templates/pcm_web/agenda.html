@@ -2,7 +2,6 @@
 
 {% block content %}
 <style>
-    /* Efek Antigravitasi (Floating Card) */
     .kartu-melayang {
         background-color: #ffffff;
         border-radius: 12px;
@@ -20,7 +19,7 @@
 
 <div style="max-width: 1100px; margin: 50px auto; padding: 0 20px;">
     
-    <!-- Bagian Agenda Mendatang -->
+    <!-- Bagian Agenda Mendatang (Otomatis dari Database / Admin) -->
     <div class="kartu-melayang">
         <h2 style="color: #000080; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center;">Agenda Kegiatan yang Akan Datang</h2>
         <div style="overflow-x: auto;">
@@ -35,26 +34,25 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for item in agenda_mendatang %}
                     <tr>
-                        <td>1</td>
-                        <td style="text-align: left;">Rapat rutin PCM</td>
-                        <td>23 Nov 2026, 19:00</td>
-                        <td>Sekretariat PCM Kartasura</td>
-                        <td style="text-align: left;">Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td style="text-align: left;">{{ item.nama_kegiatan }}</td>
+                        <td>{{ item.waktu_mulai|date:"d M Y, H:i" }}</td>
+                        <td>{{ item.tempat }}</td>
+                        <td style="text-align: left;">{{ item.keterangan|default:"-" }}</td>
                     </tr>
+                    {% empty %}
                     <tr>
-                        <td>2</td>
-                        <td style="text-align: left;">Rapat rutin dikdasmen seminggu sekali pada hari senin</td>
-                        <td>23 Nov 2026, 19:00</td>
-                        <td>PCM Kartasura</td>
-                        <td style="text-align: left;">Rapat rutin mingguan Dikdasmen</td>
+                        <td colspan="5">Belum ada agenda kegiatan yang akan datang.</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Bagian Agenda Selesai -->
+    <!-- Bagian Agenda Selesai (Otomatis dari Database / Admin) -->
     <div class="kartu-melayang">
         <h2 style="color: #555; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center;">Riwayat Agenda yang Sudah Selesai</h2>
         <div style="overflow-x: auto;">
@@ -69,48 +67,19 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for item in agenda_selesai %}
                     <tr>
-                        <td>1</td>
-                        <td style="text-align: left;">Pengajian PCM Kartasura Ahad Kliwon</td>
-                        <td>22 Nov 2026, 19:00</td>
-                        <td>Komplek Perguruan Muhammadiyah Standart, Kartasura</td>
-                        <td style="text-align: left;">Pengajian bulanan Ahad Kliwon PCM Kartasura.</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td style="text-align: left;">{{ item.nama_kegiatan }}</td>
+                        <td>{{ item.waktu_mulai|date:"d M Y, H:i" }}</td>
+                        <td>{{ item.tempat }}</td>
+                        <td style="text-align: left;">{{ item.keterangan|default:"-" }}</td>
                     </tr>
+                    {% empty %}
                     <tr>
-                        <td>2</td>
-                        <td style="text-align: left;">Rapat rutin PCM</td>
-                        <td>16 Nov 2026, 19:00</td>
-                        <td>Sekretariat PCM Kartasura</td>
-                        <td style="text-align: left;">Rapat koordinasi dan evaluasi mingguan pengurus PCM Kartasura.</td>
+                        <td colspan="5">Belum ada riwayat agenda yang selesai.</td>
                     </tr>
-                    <tr>
-                        <td>3</td>
-                        <td style="text-align: left;">Silaturrahmi BikersMu PCM Kartasura ke PCM Eromoko Wonogiri</td>
-                        <td>08 Nov 2026, 09:00</td>
-                        <td>PCM Eromoko, Wonogiri</td>
-                        <td style="text-align: left;">Kegiatan silaturrahmi dan kunjungan kerja komunitas BikersMu PCM Kartasura.</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td style="text-align: left;">Kunjungan Tim 9 PCM Kartasura ke Rumah Pak Dalmadi</td>
-                        <td>28 Oct 2026, 19:00</td>
-                        <td>Kediaman Bapak Dalmadi</td>
-                        <td style="text-align: left;">Kunjungan silaturrahmi dan menjenguk Bapak Dalmadi setelah opname di RS PKU Muhammadiyah Delanggu.</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td style="text-align: left;">Pengajian PCM Kartasura Ahad Kliwon</td>
-                        <td>25 Oct 2026, 19:00</td>
-                        <td>Komplek Perguruan Muhammadiyah Standart, Kartasura</td>
-                        <td style="text-align: left;">Pengajian bulanan Ahad Kliwon PCM Kartasura.</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td style="text-align: left;">Pengajian PCM Kartasura Ahad Kliwon</td>
-                        <td>03 May 2026, 07:00</td>
-                        <td>Komplek Perguruan Muhammadiyah Standart, Kartasura</td>
-                        <td style="text-align: left;">Pengajian bulanan Ahad Kliwon PCM Kartasura.</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
