@@ -130,7 +130,7 @@ PUSTAKA_DOKUMEN = (
 
 PIMPINAN_DATA = [
     {
-        "nama": "Ihwan Susila, S.E., M.Si., Ph.D.",
+        "nama": "Prof. Ihwan Susila, S.E., M.Si., Ph.D.",
         "jabatan": "Ketua",
         "periode": "2022–2027",
         "urutan": 1,
