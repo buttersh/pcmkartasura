@@ -74,6 +74,26 @@ class BeritaDokumenViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['berita_lainnya']), 3)
 
+    def test_detail_berita_memiliki_metadata_dan_tautan_bagikan_absolut(self):
+        berita = self.buat_berita(
+            judul='Berita uji & kabar',
+            ringkasan='Ringkasan untuk pratinjau berita',
+        )
+
+        response = self.client.get(reverse('pcm_web:detail_berita', args=[berita.slug]))
+
+        self.assertContains(response, '<meta property="og:title" content="Berita uji &amp; kabar">')
+        self.assertContains(response, '<meta property="og:description" content="Ringkasan untuk pratinjau berita">')
+        self.assertContains(response, '<meta property="og:url" content="http://testserver')
+        self.assertContains(response, '<meta property="og:image" content="http://testserver/media/berita/sampul.jpg">')
+        self.assertContains(response, '<meta property="og:type" content="article">')
+        self.assertContains(response, 'https://wa.me/?text=Berita%20uji%20%26%20kabar%20http%3A//testserver')
+        self.assertContains(response, 'https://www.facebook.com/sharer/sharer.php?u=http%3A//testserver')
+        self.assertContains(response, 'https://twitter.com/intent/tweet?text=Berita%20uji%20%26%20kabar')
+        self.assertContains(response, 'https://t.me/share/url?url=http%3A//testserver')
+        self.assertContains(response, 'Salin Tautan')
+        self.assertContains(response, 'Tautan Tersalin!')
+
     def test_detail_berita_memisahkan_ringkasan_isi_dan_sumber(self):
         source_url = 'https://pdmsukoharjo.or.id/berita-uji/'
         berita = self.buat_berita(
@@ -82,7 +102,10 @@ class BeritaDokumenViewTests(TestCase):
         )
 
         response = self.client.get(reverse('pcm_web:detail_berita', args=[berita.slug]))
-        self.assertNotContains(response, 'Ringkasan yang tidak ditampilkan di detail')
+        self.assertContains(
+            response,
+            '<meta property="og:description" content="Ringkasan yang tidak ditampilkan di detail">',
+        )
         self.assertEqual(response.context['isi_artikel'], 'Paragraf pertama.\n\nParagraf kedua.')
         self.assertEqual(response.context['sumber_url'], source_url)
         self.assertContains(response, f'href="{source_url}"')
