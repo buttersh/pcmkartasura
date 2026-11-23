@@ -179,6 +179,7 @@ def halaman_ranting(request):
 
 def halaman_amal_usaha(request):
     kategori = request.GET.get('kategori', '').strip()
+    query = request.GET.get('q', '').strip()
 
     peta_kategori = {
         'klinik': 'Klinik & Balai Pengobatan',
@@ -200,9 +201,18 @@ def halaman_amal_usaha(request):
         daftar_aum = AmalUsaha.objects.all().order_by('bidang', 'nama')
         judul_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
 
+    if query:
+        daftar_aum = daftar_aum.filter(
+            Q(nama__icontains=query)
+            | Q(alamat__icontains=query)
+            | Q(deskripsi__icontains=query)
+            | Q(kepala__icontains=query)
+        )
+
     context = {
         'daftar_aum': daftar_aum,
         'kategori': kategori,
+        'query': query,
         'nama_kategori': nama_kategori,
         'judul_kategori': judul_kategori,
     }
