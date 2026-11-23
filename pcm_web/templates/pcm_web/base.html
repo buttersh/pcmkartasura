@@ -156,7 +156,7 @@
     <div id="scroll-progress" class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald" aria-hidden="true"></div>
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
       <a href="{% url 'pcm_web:beranda' %}" class="group flex min-w-0 items-center gap-3 text-navy" aria-label="Beranda {{ profil.nama_singkat|default:'PCM Kartasura' }}">
-        <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 shrink-0 object-contain transition-transform duration-500 group-hover:rotate-[8deg] group-active:scale-90" width="40" height="40">
+        <img src="{% static 'pcm_web/images/muhammadiyah.svg' %}" alt="Logo Muhammadiyah" class="h-10 w-10 shrink-0 object-contain" width="40" height="40">
         <span class="flex min-w-0 flex-col">
           <span class="truncate text-[15px] font-extrabold uppercase leading-tight tracking-wide text-navy sm:text-base">{{ profil.nama_singkat|default:"PCM KARTASURA" }}</span>
           <span class="truncate text-[11px] font-medium text-emerald-700">{{ profil.tagline|default:"Istiqomah dan Muhasabah" }}</span>
@@ -282,6 +282,9 @@
           </p>
           <p>
             Logo Muhammadiyah: K. H. Siradj Dahlan, vektor oleh Hibensis, via Wikimedia Commons, lisensi CC BY-SA 4.0.
+          </p>
+          <p>
+            Foto berita: PDM Kabupaten Sukoharjo (<a href="https://pdmsukoharjo.or.id" target="_blank" rel="noopener noreferrer" class="underline decoration-slate-600 underline-offset-2 transition hover:text-emerald-300">pdmsukoharjo.or.id</a>).
           </p>
           <p>
             Data profil, struktur pengurus, pimpinan ranting, dan dokumen SK bersumber dari SK Resmi PCM/PDM atas izin Drs. Abdul Fatah Bintoro (Sekretaris PCM Kartasura). Berita disinkronisasi dari portal resmi PDM Sukoharjo.
