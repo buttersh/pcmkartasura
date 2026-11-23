@@ -179,6 +179,7 @@ def halaman_ranting(request):
 
 def halaman_amal_usaha(request):
     kategori = request.GET.get('kategori', '').strip()
+    query = request.GET.get('q', '').strip()
 
     peta_kategori = {
         'klinik': 'Klinik & Balai Pengobatan',
@@ -200,9 +201,18 @@ def halaman_amal_usaha(request):
         daftar_aum = AmalUsaha.objects.all().order_by('bidang', 'nama')
         judul_kategori = "Amal Usaha Muhammadiyah/'Aisyiyah"
 
+    if query:
+        daftar_aum = daftar_aum.filter(
+            Q(nama__icontains=query)
+            | Q(alamat__icontains=query)
+            | Q(deskripsi__icontains=query)
+            | Q(kepala__icontains=query)
+        )
+
     context = {
         'daftar_aum': daftar_aum,
         'kategori': kategori,
+        'query': query,
         'nama_kategori': nama_kategori,
         'judul_kategori': judul_kategori,
     }
@@ -248,9 +258,20 @@ def daftar_unduhan(request):
         dokumen for dokumen in dokumen_list
         if dokumen.judul.startswith('SK PCM Kartasura Susunan PRM')
     ]
+    dokumen_pustaka = [
+        dokumen for dokumen in dokumen_list
+        if dokumen.judul.startswith((
+            'Kepribadian Muhammadiyah',
+            'Pedoman Hidup Islami Warga Muhammadiyah',
+            'e-Book Muktamar 48:',
+            'Kalender Hijriah Global Tunggal',
+        ))
+    ]
     dokumen_lainnya = [
         dokumen for dokumen in dokumen_list
-        if dokumen not in dokumen_cabang and dokumen not in dokumen_ranting
+        if dokumen not in dokumen_cabang
+        and dokumen not in dokumen_ranting
+        and dokumen not in dokumen_pustaka
     ]
     document_sections = [
         {
@@ -262,6 +283,11 @@ def daftar_unduhan(request):
             'title': 'SK Pimpinan Ranting Muhammadiyah (PRM)',
             'badge': 'PRM · 2022–2027',
             'documents': dokumen_ranting,
+        },
+        {
+            'title': 'Pedoman & Pustaka Muhammadiyah',
+            'badge': 'Pedoman & e-Book',
+            'documents': dokumen_pustaka,
         },
         {
             'title': 'Dokumen Resmi Lainnya',

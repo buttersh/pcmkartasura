@@ -1,10 +1,11 @@
 from datetime import timedelta
 from pathlib import Path
-from urllib.parse import urlparse
+from tempfile import SpooledTemporaryFile
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
@@ -91,6 +92,39 @@ SK_DOKUMEN = (
         "SK PCM Kartasura Susunan PRM Singopuran 2022–2027",
         "1duR7aLQcqgKtuq4gXI46ZQKzbtor0DJN",
         "Pimpinan Ranting Muhammadiyah Singopuran oleh PCM Kartasura",
+    ),
+)
+
+PUSTAKA_DOKUMEN = (
+    (
+        "Kepribadian Muhammadiyah dan Matan Keyakinan dan Cita-Cita Hidup Muhammadiyah (MKCH)",
+        "1brjg9eItxHdYd77sGlfrxGEniRUobI-j",
+        "Pedoman Ideologi Muhammadiyah: Kepribadian Muhammadiyah dan MKCH.",
+    ),
+    (
+        "Pedoman Hidup Islami Warga Muhammadiyah (PHIWM)",
+        "1L74Qk7eTZ8GiqKUvctywPNz6OriGb2Ig",
+        "Pedoman Hidup Islami Warga Muhammadiyah (PHIWM).",
+    ),
+    (
+        "e-Book Muktamar 48: Kuntum Khoiro Ummah",
+        "1q95daieyLhIAALQYurduSd54N7coliWB",
+        "Materi e-Book Muktamar Muhammadiyah ke-48: Kuntum Khoiro Ummah.",
+    ),
+    (
+        "e-Book Muktamar 48: Al-Insan Wa Al-Ilm",
+        "1AHGqlRtCMngyVBCQ8-e5Xd88Gg8UceEQ",
+        "Materi e-Book Muktamar Muhammadiyah ke-48: Al-Insan Wa Al-Ilm.",
+    ),
+    (
+        "e-Book Muktamar 48: Hablum Minannas",
+        "16bdVf90WL0rDNcAHfAwplKfqeRRJRP6r",
+        "Materi e-Book Muktamar Muhammadiyah ke-48: Hablum Minannas.",
+    ),
+    (
+        "Kalender Hijriah Global Tunggal (KHGT)",
+        "1BfWFIZROsBhaXJ--FVND5YgcRvdQtABV",
+        "Pedoman dan informasi Kalender Hijriah Global Tunggal (KHGT) Muhammadiyah.",
     ),
 )
 
@@ -394,15 +428,91 @@ def featured_image(post):
     return ContentFile(response.content, name=filename)
 
 
+def _google_drive_pdf_response(session, file_id):
+    download_url = GOOGLE_DRIVE_DOWNLOAD_URL.format(file_id=file_id)
+    response = session.get(download_url, timeout=(10, 180), stream=True)
+    try:
+        response.raise_for_status()
+    except requests.RequestException:
+        response.close()
+        raise
+
+    content_type = response.headers.get("Content-Type", "").lower()
+    if "text/html" not in content_type:
+        return response
+
+    html = response.content
+    response.close()
+    soup = BeautifulSoup(html, "html.parser")
+    form = soup.find("form", id="download-form") or soup.find("form")
+    if form:
+        form_data = {
+            field.get("name"): field.get("value", "")
+            for field in form.select("input[name]")
+        }
+        action = urljoin(response.url, form.get("action") or response.url)
+        method = (form.get("method") or "get").lower()
+        if method == "post":
+            confirmed_response = session.post(
+                action,
+                data=form_data,
+                timeout=(10, 180),
+                stream=True,
+            )
+        else:
+            confirmed_response = session.get(
+                action,
+                params=form_data,
+                timeout=(10, 180),
+                stream=True,
+            )
+    else:
+        confirmation_token = next(
+            (
+                value
+                for name, value in session.cookies.items()
+                if name.startswith("download_warning")
+            ),
+            None,
+        )
+        if not confirmation_token:
+            raise ValueError(
+                "Google Drive returned an HTML page without a download confirmation."
+            )
+        confirmed_response = session.get(
+            download_url,
+            params={"confirm": confirmation_token},
+            timeout=(10, 180),
+            stream=True,
+        )
+
+    try:
+        confirmed_response.raise_for_status()
+    except requests.RequestException:
+        confirmed_response.close()
+        raise
+    return confirmed_response
+
+
 def download_sk_pdf(file_id, filename):
-    response = requests.get(
-        GOOGLE_DRIVE_DOWNLOAD_URL.format(file_id=file_id),
-        timeout=60,
-    )
-    response.raise_for_status()
-    if not response.content.lstrip().startswith(b"%PDF-"):
-        raise ValueError("Respons Google Drive bukan berkas PDF.")
-    return ContentFile(response.content, name=filename)
+    with requests.Session() as session:
+        response = _google_drive_pdf_response(session, file_id)
+        downloaded_file = SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode="w+b")
+        succeeded = False
+        try:
+            for chunk in response.iter_content(chunk_size=64 * 1024):
+                if chunk:
+                    downloaded_file.write(chunk)
+            downloaded_file.seek(0)
+            if not downloaded_file.read(5).startswith(b"%PDF-"):
+                raise ValueError("Respons Google Drive bukan berkas PDF.")
+            downloaded_file.seek(0)
+            succeeded = True
+            return File(downloaded_file, name=filename)
+        finally:
+            response.close()
+            if not succeeded:
+                downloaded_file.close()
 
 
 def sk_pdf_filename(title):
@@ -432,6 +542,7 @@ class Command(BaseCommand):
             self.import_news(posts)
 
         self.import_sk_documents()
+        self.import_pustaka_documents()
 
     def seed_profil(self):
         profil = ProfilOrganisasi.objects.first()
@@ -623,16 +734,29 @@ class Command(BaseCommand):
         )
 
     def import_sk_documents(self):
+        documents = [
+            (
+                title,
+                file_id,
+                (
+                    f"Surat keputusan penetapan susunan {leadership_unit} "
+                    "periode 2022–2027."
+                ),
+            )
+            for title, file_id, leadership_unit in SK_DOKUMEN
+        ]
+        self.import_pdf_documents(documents, "SK")
+
+    def import_pustaka_documents(self):
+        self.import_pdf_documents(PUSTAKA_DOKUMEN, "pedoman dan e-Book")
+
+    def import_pdf_documents(self, documents, document_type):
         created_count = 0
         existing_count = 0
         failed_count = 0
 
-        for title, file_id, leadership_unit in SK_DOKUMEN:
+        for title, file_id, keterangan in documents:
             filename = sk_pdf_filename(title)
-            keterangan = (
-                f"Surat keputusan penetapan susunan {leadership_unit} "
-                "periode 2022–2027."
-            )
             existing = Dokumen.objects.filter(judul=title).first()
             if (
                 existing
@@ -643,6 +767,7 @@ class Command(BaseCommand):
                 existing_count += 1
                 continue
 
+            pdf_file = None
             try:
                 pdf_file = download_sk_pdf(file_id, filename)
                 dokumen, created = Dokumen.objects.get_or_create(
@@ -661,9 +786,14 @@ class Command(BaseCommand):
                     existing_count += 1
             except (requests.RequestException, ValueError) as exc:
                 failed_count += 1
+                self.stderr.write(self.style.WARNING(f"Gagal mengunduh {title}: {exc}"))
+            finally:
+                if pdf_file is not None:
+                    pdf_file.close()
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Impor SK selesai: {created_count} baru, {existing_count} tersedia, {failed_count} gagal."
+                f"Impor {document_type} selesai: {created_count} baru, "
+                f"{existing_count} tersedia, {failed_count} gagal."
             )
         )

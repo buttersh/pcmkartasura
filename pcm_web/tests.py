@@ -1,5 +1,6 @@
 import tempfile
 from datetime import timedelta
+from unittest.mock import Mock, patch
 
 from django.contrib.admin.sites import AdminSite
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -10,7 +11,13 @@ from django.utils import timezone
 from .admin import PesanMasukAdmin, ProfilOrganisasiAdmin
 from .context_processors import profil_dan_tautan
 from .forms import KontakForm
-from .management.commands.seed_pcm import format_article_content, sk_pdf_filename
+from .management.commands.seed_pcm import (
+    AGENDA_DATA,
+    Command,
+    download_sk_pdf,
+    format_article_content,
+    sk_pdf_filename,
+)
 from .models import (
     Agenda,
     AmalUsaha,
@@ -74,6 +81,26 @@ class BeritaDokumenViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['berita_lainnya']), 3)
 
+    def test_detail_berita_memiliki_metadata_dan_tautan_bagikan_absolut(self):
+        berita = self.buat_berita(
+            judul='Berita uji & kabar',
+            ringkasan='Ringkasan untuk pratinjau berita',
+        )
+
+        response = self.client.get(reverse('pcm_web:detail_berita', args=[berita.slug]))
+
+        self.assertContains(response, '<meta property="og:title" content="Berita uji &amp; kabar">')
+        self.assertContains(response, '<meta property="og:description" content="Ringkasan untuk pratinjau berita">')
+        self.assertContains(response, '<meta property="og:url" content="http://testserver')
+        self.assertContains(response, '<meta property="og:image" content="http://testserver/media/berita/sampul.jpg">')
+        self.assertContains(response, '<meta property="og:type" content="article">')
+        self.assertContains(response, 'https://wa.me/?text=Berita%20uji%20%26%20kabar%20http%3A//testserver')
+        self.assertContains(response, 'https://www.facebook.com/sharer/sharer.php?u=http%3A//testserver')
+        self.assertContains(response, 'https://twitter.com/intent/tweet?text=Berita%20uji%20%26%20kabar')
+        self.assertContains(response, 'https://t.me/share/url?url=http%3A//testserver')
+        self.assertContains(response, 'Salin Tautan')
+        self.assertContains(response, 'Tautan Tersalin!')
+
     def test_detail_berita_memisahkan_ringkasan_isi_dan_sumber(self):
         source_url = 'https://pdmsukoharjo.or.id/berita-uji/'
         berita = self.buat_berita(
@@ -82,7 +109,10 @@ class BeritaDokumenViewTests(TestCase):
         )
 
         response = self.client.get(reverse('pcm_web:detail_berita', args=[berita.slug]))
-        self.assertNotContains(response, 'Ringkasan yang tidak ditampilkan di detail')
+        self.assertContains(
+            response,
+            '<meta property="og:description" content="Ringkasan yang tidak ditampilkan di detail">',
+        )
         self.assertEqual(response.context['isi_artikel'], 'Paragraf pertama.\n\nParagraf kedua.')
         self.assertEqual(response.context['sumber_url'], source_url)
         self.assertContains(response, f'href="{source_url}"')
@@ -125,22 +155,78 @@ class BeritaDokumenViewTests(TestCase):
             keterangan='Penetapan susunan PRM Ngemplak periode 2022–2027.',
             berkas=SimpleUploadedFile('sk-ranting.pdf', b'%PDF-ranting'),
         )
+        pustaka = Dokumen.objects.create(
+            judul='e-Book Muktamar 48: Kuntum Khoiro Ummah',
+            keterangan='Materi e-Book Muktamar Muhammadiyah ke-48.',
+            berkas=SimpleUploadedFile('kuntum-khoiro-ummah.pdf', b'%PDF-pustaka'),
+        )
 
         response = self.client.get(reverse('pcm_web:daftar_unduhan'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'SK Tingkat Cabang — PDM Sukoharjo')
         self.assertContains(response, 'SK Pimpinan Ranting Muhammadiyah (PRM)')
+        self.assertContains(response, 'Pedoman &amp; Pustaka Muhammadiyah')
+        self.assertContains(response, pustaka.judul)
+        self.assertContains(response, 'PUSAT UNDUHAN &amp; ARSIP RESMI')
+        self.assertContains(response, 'Pusat Unduhan Dokumen, SK &amp; Pustaka Muhammadiyah')
+        self.assertContains(
+            response,
+            'Arsip Surat Keputusan (SK) pimpinan cabang dan ranting periode '
+            '2022–2027 serta pedoman resmi dan e-Book Persyarikatan Muhammadiyah.',
+        )
+        self.assertContains(response, 'Unduhan</a>')
+        self.assertNotContains(response, 'Unduhan SK')
         self.assertContains(response, 'Pratinjau')
         self.assertContains(response, 'Unduh PDF')
         self.assertContains(response, 'target="_blank"')
         self.assertContains(response, cabang.berkas.url)
         self.assertContains(response, ranting.berkas.url)
+        self.assertContains(response, pustaka.berkas.url)
 
     def test_nama_file_sk_mengandung_tanda_hubung_periode(self):
         self.assertEqual(
             sk_pdf_filename('SK PCM Kartasura Susunan PRM Ngemplak 2022–2027'),
             'sk-pcm-kartasura-susunan-prm-ngemplak-2022-2027.pdf',
         )
+
+    def test_seed_unduhan_pdf_dengan_konfirmasi_google_drive(self):
+        confirmation_response = Mock()
+        confirmation_response.headers = {'Content-Type': 'text/html'}
+        confirmation_response.content = (
+            b'<form id="download-form" action="https://drive.google.com/download">'
+            b'<input type="hidden" name="id" value="file-id">'
+            b'<input type="hidden" name="confirm" value="t"></form>'
+        )
+        confirmation_response.url = 'https://drive.google.com/uc?export=download&id=file-id'
+        pdf_response = Mock()
+        pdf_response.headers = {'Content-Type': 'application/pdf'}
+        pdf_response.iter_content.return_value = [b'%PDF-', b'large document']
+
+        with patch('pcm_web.management.commands.seed_pcm.requests.Session') as session_factory:
+            session = session_factory.return_value.__enter__.return_value
+            session.get.side_effect = [confirmation_response, pdf_response]
+
+            downloaded = download_sk_pdf('file-id', 'dokumen.pdf')
+            self.addCleanup(downloaded.close)
+
+        self.assertEqual(downloaded.read(), b'%PDF-large document')
+        self.assertEqual(
+            session.get.call_args_list[1].kwargs['params'],
+            {'id': 'file-id', 'confirm': 't'},
+        )
+
+    def test_seed_agenda_tidak_gagal_jika_nama_agenda_sudah_duplikat(self):
+        agenda_name = AGENDA_DATA[0]['nama_kegiatan']
+        for _ in range(2):
+            Agenda.objects.create(
+                nama_kegiatan=agenda_name,
+                waktu_mulai=timezone.now(),
+                tempat='Tempat uji',
+            )
+
+        Command().seed_agenda()
+
+        self.assertEqual(Agenda.objects.filter(nama_kegiatan=agenda_name).count(), 2)
 
 
 class PublicPagesTests(TestCase):
