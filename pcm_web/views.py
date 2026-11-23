@@ -248,9 +248,20 @@ def daftar_unduhan(request):
         dokumen for dokumen in dokumen_list
         if dokumen.judul.startswith('SK PCM Kartasura Susunan PRM')
     ]
+    dokumen_pustaka = [
+        dokumen for dokumen in dokumen_list
+        if dokumen.judul.startswith((
+            'Kepribadian Muhammadiyah',
+            'Pedoman Hidup Islami Warga Muhammadiyah',
+            'e-Book Muktamar 48:',
+            'Kalender Hijriah Global Tunggal',
+        ))
+    ]
     dokumen_lainnya = [
         dokumen for dokumen in dokumen_list
-        if dokumen not in dokumen_cabang and dokumen not in dokumen_ranting
+        if dokumen not in dokumen_cabang
+        and dokumen not in dokumen_ranting
+        and dokumen not in dokumen_pustaka
     ]
     document_sections = [
         {
@@ -262,6 +273,11 @@ def daftar_unduhan(request):
             'title': 'SK Pimpinan Ranting Muhammadiyah (PRM)',
             'badge': 'PRM · 2022–2027',
             'documents': dokumen_ranting,
+        },
+        {
+            'title': 'Pedoman & Pustaka Muhammadiyah',
+            'badge': 'Pedoman & e-Book',
+            'documents': dokumen_pustaka,
         },
         {
             'title': 'Dokumen Resmi Lainnya',
