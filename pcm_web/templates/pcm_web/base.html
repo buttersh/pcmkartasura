@@ -57,24 +57,8 @@
         <a href="{% url 'pcm_web:profil_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Profil</a>
         <a href="{% url 'pcm_web:pimpinan_pcm' %}" class="text-white hover:text-emerald-300 transition py-1">Pimpinan</a>
         
-        <!-- Dropdown AUM -->
-        <div class="relative group">
-          <a href="{% url 'pcm_web:amal_usaha' %}" class="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition py-1">
-            AUM <span class="text-xs">&#9662;</span>
-          </a>
-          <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 focus-within:visible focus-within:opacity-100 transition-all duration-200 md:absolute left-0 top-full pt-2 z-50 min-w-[240px]">
-            <ul class="bg-white text-slate-800 rounded-xl shadow-xl border border-slate-100 py-2 list-unstyled mb-0">
-              <li><a class="block px-4 py-2 text-slate-800 hover:bg-emerald-50 hover:text-emerald-700 font-semibold" href="{% url 'pcm_web:amal_usaha' %}">Semua AUM (70+)</a></li>
-              <li class="border-t border-slate-100 my-1"></li>
-              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=pendidikan">Pendidikan / Sekolah</a></li>
-              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=kesehatan">Kesehatan &amp; PKU</a></li>
-              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=sosial">Sosial &amp; Panti Asuhan</a></li>
-              <li><a class="block px-4 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700" href="{% url 'pcm_web:amal_usaha' %}?kategori=ekonomi">Ekonomi &amp; LazisMu</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <a href="{% url 'pcm_web:ranting' %}" class="text-white hover:text-emerald-300 transition py-1">Ranting (12)</a>
+        <a href="{% url 'pcm_web:amal_usaha' %}" class="text-white hover:text-emerald-300 transition py-1">AUM</a>
+        <a href="{% url 'pcm_web:ranting' %}" class="text-white hover:text-emerald-300 transition py-1">PRM/PRA</a>
         <a href="{% url 'pcm_web:daftar_berita' %}" class="text-white hover:text-emerald-300 transition py-1">Berita</a>
         <a href="{% url 'pcm_web:agenda' %}" class="text-white hover:text-emerald-300 transition py-1">Agenda</a>
         <a href="{% url 'pcm_web:daftar_unduhan' %}" class="text-white hover:text-emerald-300 transition py-1">Unduhan SK</a>
