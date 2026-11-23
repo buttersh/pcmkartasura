@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pcm_web', '0006_merge_20261116_2330'),
+        ('pcm_web', '0001_initial'),
     ]
 
     operations = [
